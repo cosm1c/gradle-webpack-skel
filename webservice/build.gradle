@@ -1,0 +1,89 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
+        classpath 'org.ajoberstar:grgit:2.1.0'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'org.ajoberstar.grgit'
+apply plugin: 'scala'
+apply plugin: 'idea'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+apply from: '../gradle/build-properties.gradle'
+
+shadowJar.dependsOn(':frontend:buildPackage')
+
+build.dependsOn shadowJar
+
+def headCommit = grgit.head()
+
+ext {
+    gitCommitVersion = headCommit.id
+    gitCommitDateTime = headCommit.dateTime
+    mainClassName = 'com.github.cosm1c.skel.Main'
+    akkaVersion = '2.5.11'
+    akkaStreamVersion = '2.5.11'
+    akkaHttpVersion = '10.1.0'
+    circeVersion = '0.9.1'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jar {
+    manifest {
+        attributes 'Main-Class': mainClassName,
+            'Implementation-Title': "${project.name}",
+            'Implementation-Version': "${project.version}"
+    }
+}
+
+shadowJar {
+    from('../frontend/dist') {
+        include '**/*'
+        into 'ui'
+    }
+    transform(com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer) {
+        resource = 'reference.conf'
+    }
+}
+
+dependencies {
+    compile group: 'org.scala-lang', name: 'scala-library', version: "${scalaBinaryVersion}.${scalaPatchVersion}"
+    compile group: 'org.scala-lang.modules', name: "scala-java8-compat_${scalaBinaryVersion}", version: '0.8.0'
+    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
+
+    compile group: 'com.typesafe.akka', name: "akka-http_${scalaBinaryVersion}", version: akkaHttpVersion
+    compile group: 'com.typesafe.akka', name: "akka-stream_${scalaBinaryVersion}", version: akkaStreamVersion
+    compile group: 'com.typesafe.akka', name: "akka-slf4j_${scalaBinaryVersion}", version: akkaVersion
+    compile group: 'com.github.swagger-akka-http', name: "swagger-akka-http_${scalaBinaryVersion}", version: '0.13.0'
+    compile group: 'ch.megard', name: "akka-http-cors_${scalaBinaryVersion}", version: '0.2.2'
+
+    compile group: 'io.projectreactor', name: 'reactor-core', version: '3.1.4.RELEASE'
+    compile group: 'io.projectreactor.addons', name: 'reactor-adapter', version: '3.1.5.RELEASE'
+
+    compile group: 'de.heikoseeberger', name: "akka-http-circe_${scalaBinaryVersion}", version: '1.19.0'
+    compile group: 'io.circe', name: "circe-core_${scalaBinaryVersion}", version: circeVersion
+    compile group: 'io.circe', name: "circe-generic_${scalaBinaryVersion}", version: circeVersion
+    compile group: 'io.circe', name: "circe-parser_${scalaBinaryVersion}", version: circeVersion
+    compile group: 'io.circe', name: "circe-java8_${scalaBinaryVersion}", version: circeVersion
+
+    compile group: 'com.google.guava', name: 'guava', version: '24.0-jre'
+
+    compile group: 'com.typesafe.scala-logging', name: "scala-logging_${scalaBinaryVersion}", version: '3.7.2'
+    runtimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    compile group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.25'
+
+    testCompile group: 'com.typesafe.akka', name: "akka-testkit_${scalaBinaryVersion}", version: akkaVersion
+    testCompile group: 'com.typesafe.akka', name: "akka-stream-testkit_${scalaBinaryVersion}", version: akkaStreamVersion
+    testCompile group: 'org.scalatest', name: "scalatest_${scalaBinaryVersion}", version: '3.0.4'
+    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
+}

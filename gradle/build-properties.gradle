@@ -1,0 +1,18 @@
+def buildPropertiesFile = "${project.buildDir.absolutePath}/build.properties"
+
+task createBuildPropertiesFile() {
+    doLast {
+        new File(buildPropertiesFile).text = """
+build.version=${project.version}
+build.date=${buildTime}
+git.version=${gitCommitVersion}
+git.date=${gitCommitDateTime}
+"""
+    }
+}
+
+processResources.dependsOn createBuildPropertiesFile
+
+processResources {
+    from(buildPropertiesFile)
+}

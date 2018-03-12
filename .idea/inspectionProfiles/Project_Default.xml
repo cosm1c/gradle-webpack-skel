@@ -1,0 +1,12 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="AbstractValueInTrait" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="JSEqualityComparisonWithCoercion.TS" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="JSNonStrictModeUsed" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="LegacyStringFormatting" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="NestedStatefulMonads" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="NoTailRecursionAnnotation" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="TsLint" enabled="true" level="ERROR" enabled_by_default="true" />
+  </profile>
+</component>

@@ -1,0 +1,27 @@
+@import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+@import '../../node_modules/bootstrap/dist/css/bootstrap-theme.min.css';
+
+html, body, #app, .main-container {
+  width: 100%;
+  height: 100%;
+}
+
+#app .navbar {
+  margin: 0;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar-row {
+  flex: 0 0 auto;
+}
+
+.joblist-row {
+  flex: 1 1 auto;
+  position: relative;
+  overflow-y: auto;
+  margin-bottom: 0;
+}

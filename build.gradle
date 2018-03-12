@@ -1,0 +1,17 @@
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+
+apply plugin: 'idea'
+
+allprojects {
+    group = 'com.github.cosm1c'
+    version = '1.0-SNAPSHOT'
+    description = 'Gradle Webpack Skeleton'
+
+    ext {
+        scalaBinaryVersion = '2.12'
+        scalaPatchVersion = '4'
+        buildTime = DateTimeFormatter.ISO_ZONED_DATE_TIME.format(ZonedDateTime.now())
+    }
+}
+
