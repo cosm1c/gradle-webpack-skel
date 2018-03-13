@@ -38,6 +38,12 @@ ext {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+task runWebService(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    main = mainClassName
+    //args "arg1", "arg2"
+}
+
 jar {
     manifest {
         attributes 'Main-Class': mainClassName,

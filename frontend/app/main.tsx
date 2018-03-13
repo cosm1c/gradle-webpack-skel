@@ -11,7 +11,7 @@ const Root = (
   <Provider store={store}>
     <div className='root-container'>
 
-      <Navbar className='navbar-row' defaultExpanded={true}>
+      <Navbar className='navbar-row'>
         <Navbar.Header>
           <Navbar.Brand>Gradle Webpack Skeleton</Navbar.Brand>
           <Navbar.Toggle/>
