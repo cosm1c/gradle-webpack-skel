@@ -26,7 +26,7 @@ function websocketLabel(streamState: StreamStateEnum) {
 
 export const StreamStatus: React.SFC<StreamStatusProps> = (props) => {
   const {className, style, streamState} = props;
-  const digraphClass = classNames(className, 'stream-status');
+  const componentClass = classNames(className, 'stream-status');
 
-  return (<div className={digraphClass} style={style}>{websocketLabel(streamState)}</div>);
+  return (<div className={componentClass} style={style}>{websocketLabel(streamState)}</div>);
 };

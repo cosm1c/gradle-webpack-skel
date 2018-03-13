@@ -1,16 +1,16 @@
 @import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 @import '../../node_modules/bootstrap/dist/css/bootstrap-theme.min.css';
 
-html, body, #app, .main-container {
+html, body, #root, .root-container {
   width: 100%;
   height: 100%;
 }
 
-#app .navbar {
+#root .navbar {
   margin: 0;
 }
 
-.main-container {
+.root-container {
   display: flex;
   flex-direction: column;
 }
@@ -19,7 +19,7 @@ html, body, #app, .main-container {
   flex: 0 0 auto;
 }
 
-.joblist-row {
+.main-container {
   flex: 1 1 auto;
   position: relative;
   overflow-y: auto;
