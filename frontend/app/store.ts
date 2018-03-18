@@ -1,9 +1,10 @@
 import {applyMiddleware, createStore} from 'redux';
+import {composeWithDevTools} from 'redux-devtools-extension';
 import {combineEpics, createEpicMiddleware, Epic} from 'redux-observable';
 import {makeTypedFactory, TypedRecord} from 'typed-immutable-record';
 import {combineReducers} from 'redux-immutable';
 import {initialStreamState, IStreamStateRecord, StreamAction, streamReducer} from './stream/';
-import {webSocketEpic} from './stream/websocket/websocket';
+import {webSocketEpic} from './stream/websocket/webSocketEpic';
 import {emptyMonoidStore, MonoidAction, monoidStoreReducer, MonoidStoreRoot} from './monoidstore';
 
 export type IRootAction =
@@ -12,12 +13,12 @@ export type IRootAction =
 
 interface IRootState {
   streamState: IStreamStateRecord;
-  monoidStore: MonoidStoreRoot;
+  store: MonoidStoreRoot;
 }
 
 const defaultRootState: IRootState = {
   streamState: initialStreamState,
-  monoidStore: emptyMonoidStore,
+  store: emptyMonoidStore,
 };
 
 export interface IRootStateRecord extends TypedRecord<IRootStateRecord>, IRootState {
@@ -30,7 +31,7 @@ const initialState = InitialStateFactory(defaultRootState);
 const rootReducer = combineReducers<IRootStateRecord>(
   {
     streamState: streamReducer,
-    monoidStore: monoidStoreReducer,
+    store: monoidStoreReducer,
   }
   // do we need to provide getDefaultState here?
 );
@@ -46,7 +47,7 @@ const epicMiddleware = createEpicMiddleware(rootEpic);
 const store = createStore(
   rootReducer,
   initialState!,
-  applyMiddleware(epicMiddleware)
+  composeWithDevTools(applyMiddleware(epicMiddleware))
 );
 
 export default store;

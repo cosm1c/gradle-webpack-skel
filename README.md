@@ -6,7 +6,7 @@ NOTE: Webpack 4 not yet supported due to missing updates for some plugins.
 
 ## Release Command
 ```
-./gradlew clean build
+./gradlew clean && ./gradlew build
 ```
 
 ## Frontend Development Environment

@@ -2,31 +2,32 @@ package com.github.cosm1c.skel.ui
 
 import akka.event.LoggingAdapter
 import akka.http.scaladsl.server._
-import akka.stream.OverflowStrategy
 import akka.stream.QueueOfferResult.{Dropped, Enqueued, QueueClosed, _}
-import akka.stream.scaladsl.{Source, SourceQueueWithComplete}
+import akka.stream.scaladsl.{Keep, Source, SourceQueueWithComplete}
+import akka.stream.{Materializer, OverflowStrategy}
+import io.circe.Json
 
 import scala.concurrent.ExecutionContext
 
-class UiRoutes(uiWebSocketFlow: UiWebSocketFlow)(implicit executor: ExecutionContext, log: LoggingAdapter) extends Directives {
+class UiRoutes(uiWebSocketFlow: UiWebSocketFlow)(implicit executor: ExecutionContext, materializer: Materializer, log: LoggingAdapter) extends Directives {
 
-    private val userCountSource: Source[Int, SourceQueueWithComplete[Int]] =
+    private val clientCountSourceQueue: SourceQueueWithComplete[Int] =
         Source
-            .queue(0, OverflowStrategy.backpressure)
+            .queue[Int](0, OverflowStrategy.backpressure)
             .scan(0)(_ + _)
+            .map(count => Json.obj("clientCount" -> Json.fromInt(count)))
+            .toMat(uiWebSocketFlow.globalStorePubSub.storeSink)(Keep.left)
+            .run()
 
-    private val userCountSourceQueue: SourceQueueWithComplete[Int] =
-        uiWebSocketFlow.attachSubSource("userCount", userCountSource)
-
-    val route: Route =
+    final val route: Route =
         pathEndOrSingleSlash {
             getFromResource("ui/index.html")
         } ~ path("ws") {
-            onSuccess(userCountSourceQueue.offer(1)) {
+            onSuccess(clientCountSourceQueue.offer(1)) {
                 case Enqueued =>
                     handleWebSocketMessages(
                         uiWebSocketFlow.clientWebSocketFlow
-                            .watchTermination()((_, done) => done.foreach(_ => userCountSourceQueue.offer(-1))))
+                            .watchTermination()((_, done) => done.foreach(_ => clientCountSourceQueue.offer(-1))))
 
                 case Failure(cause) =>
                     log.error(cause, "Failed to enqueue websocket message - Failure")

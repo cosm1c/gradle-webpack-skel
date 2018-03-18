@@ -4,25 +4,11 @@ import com.github.cosm1c.skel.health.HealthRestService.HealthInfo
 import com.github.cosm1c.skel.job.JobManagerActor.JobInfo
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import io.circe.Json.fromJsonObject
-import io.circe._
 import io.circe.generic.semiauto._
 import io.circe.java8.time.TimeInstances
+import io.circe.{Decoder, _}
 
 trait JsonProtocol extends FailFastCirceSupport with TimeInstances {
-
-    implicit val circePrinter: Printer = Printer.noSpaces //.copy(dropNullValues = true)
-
-
-    implicit val healthInfoEncoder: Encoder[HealthInfo] = deriveEncoder
-
-
-    implicit val jobInfoDecoder: Decoder[JobInfo] = deriveDecoder[JobInfo]
-
-    implicit val jobInfoEncoder: Encoder[JobInfo] =
-        deriveEncoder[JobInfo]
-            // This could be recursive
-            .mapJsonObject(_.filter(!_._2.isNull))
-
 
     def conflateJsonKeepNulls(state: Json, delta: Json): Json =
         state.deepMerge(delta)
@@ -47,5 +33,19 @@ trait JsonProtocol extends FailFastCirceSupport with TimeInstances {
 
     def conflateJsonPair(state: (Json, Json), delta: (Json, Json)): (Json, Json) =
         (conflateJsonDropNulls(state._1, delta._2), conflateJsonKeepNulls(state._2, delta._2))
+
+
+    implicit final val circePrinter: Printer = Printer.noSpaces //.copy(dropNullValues = true)
+
+
+    implicit final val healthInfoEncoder: Encoder[HealthInfo] = deriveEncoder
+
+
+    implicit final val jobInfoDecoder: Decoder[JobInfo] = deriveDecoder[JobInfo]
+
+    implicit final val jobInfoEncoder: Encoder[JobInfo] =
+        deriveEncoder[JobInfo]
+            // This could be recursive
+            .mapJsonObject(_.filter(!_._2.isNull))
 
 }

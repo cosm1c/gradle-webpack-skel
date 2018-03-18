@@ -4,8 +4,10 @@ import {streamActionCreators} from './';
 export * from './StreamStateRecord';
 export * from './actions';
 export * from './reducer';
+export * from './selectors';
 export * from './StreamStatus';
 export * from './StreamStatusConnected';
+export * from './ClientStreams';
 
 const stream = {
   connect(): void {

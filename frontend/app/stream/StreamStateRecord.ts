@@ -13,10 +13,12 @@ export function streamStateDisplay(streamStateEnum: StreamStateEnum) {
 
 interface IStreamState {
   connection: StreamStateEnum;
+  errorMessage: string;
 }
 
 const defaultStreamState: IStreamState = {
-  connection: StreamStateEnum.DISCONNECTED
+  connection: StreamStateEnum.DISCONNECTED,
+  errorMessage: '',
 };
 
 export interface IStreamStateRecord extends TypedRecord<IStreamStateRecord>, IStreamState {

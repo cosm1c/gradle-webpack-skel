@@ -13,7 +13,7 @@ class HttpRoutes(uiRoutes: UiRoutes,
                  swaggerDocService: SwaggerDocService,
                  healthRestService: HealthRestService) {
 
-    val route: Route =
+    final val route: Route =
         decodeRequest {
             encodeResponse {
                 cors() {

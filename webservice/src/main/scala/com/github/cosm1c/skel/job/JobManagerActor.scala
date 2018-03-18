@@ -11,6 +11,7 @@ import com.github.cosm1c.skel.job.JobManagerActor._
 import com.github.cosm1c.skel.ui.UiWebSocketFlow
 import com.github.cosm1c.skel.util.ReplyStatus
 import com.github.cosm1c.skel.util.ReplyStatus.{ReplyFailure, ReplySuccess}
+import io.circe.Json
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -63,6 +64,15 @@ class JobManagerActor(uiStreams: UiWebSocketFlow)(implicit materializer: Materia
     private var jobInfos = Map.empty[Long, JobInfo]
     private var jobKillSwitches = Map.empty[Long, UniqueKillSwitch]
 
+    private def attachJobSource[M](jobId: String, jobInfoSource: Source[JobInfo, M]): M =
+        jobInfoSource
+            .map(jobInfo => Json.obj(jobId -> jobInfoEncoder(jobInfo)))
+            .concat(Source.single(Json.obj(jobId -> Json.Null))) // remove from state
+            .recover { case _ => Json.obj(jobId -> Json.Null) }
+            .map(msg => Json.obj("jobs" -> msg))
+            .toMat(uiStreams.globalStorePubSub.storeSink)(Keep.left)
+            .run()
+
     private val jobInfoStreamMergeHubSource: Sink[JobInfo, NotUsed] =
         MergeHub.source[JobInfo](perProducerBufferSize = 1)
             .toMat(Sink.actorRefWithAck(self, JobInfoStreamStart, JobInfoStreamAck, JobInfoStreamEnd, throwable => log.error(throwable, "JobInfo Stream failed")))(Keep.left)
@@ -95,6 +105,7 @@ class JobManagerActor(uiStreams: UiWebSocketFlow)(implicit materializer: Materia
             val jobId = nextJobId
             val zeroJobInfo = JobInfo(jobId, someZero, Some(total), Some(LocalDateTime.now()), description = Some(description))
 
+            //m memory could be saved by not enclosing on fields
             val wrappedJobStream: Source[JobInfo, (UniqueKillSwitch, Future[Done])] =
                 jobInfoStream(jobId, zeroJobInfo, total)
                     .alsoTo(jobInfoStreamMergeHubSource)
@@ -113,7 +124,7 @@ class JobManagerActor(uiStreams: UiWebSocketFlow)(implicit materializer: Materia
                             JobInfo(jobId, endDateTime = Some(LocalDateTime.now())))
                     }))
 
-            val (killSwitch, eventualDone) = uiStreams.attachSubSource(jobId.toString, wrappedJobStream)
+            val (killSwitch, eventualDone) = attachJobSource(jobId.toString, wrappedJobStream)
 
             eventualDone.onComplete {
                 case Success(_) =>

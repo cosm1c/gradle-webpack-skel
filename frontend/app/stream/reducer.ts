@@ -1,5 +1,5 @@
 import {AnyAction, Reducer} from 'redux';
-import {CONNECT_STREAM, DISCONNECT_STREAM, STREAM_CONNECTED, STREAM_DISCONNECTED} from './actions';
+import {CONNECT_STREAM, DISCONNECT_STREAM, STREAM_CONNECTED, STREAM_DISCONNECTED, STREAM_ERROR} from './actions';
 import {initialStreamState, IStreamStateRecord, StreamStateEnum} from './StreamStateRecord';
 
 function setStreamState(state: IStreamStateRecord, newValue: StreamStateEnum): IStreamStateRecord {
@@ -14,6 +14,10 @@ export const streamReducer: Reducer<IStreamStateRecord> =
 
       case STREAM_CONNECTED:
         return setStreamState(state, StreamStateEnum.CONNECTED);
+
+      case STREAM_ERROR:
+        // TODO: don't drop/overwrite error messages
+        return state.setIn(['errorMessage'], action.errorMessage);
 
       case DISCONNECT_STREAM:
         return setStreamState(state, StreamStateEnum.DISCONNECTING);

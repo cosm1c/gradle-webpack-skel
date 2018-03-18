@@ -24,4 +24,18 @@ html, body, #root, .root-container {
   position: relative;
   overflow-y: auto;
   margin-bottom: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  .job-list, .chart-streams {
+    margin-bottom: 0;
+    flex: 1 1 auto;
+  }
+}
+
+.footer {
+  .alert {
+    margin-bottom: 0;
+  }
 }

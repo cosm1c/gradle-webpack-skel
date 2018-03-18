@@ -1,7 +1,8 @@
 import {Map} from 'immutable';
+import {Observer} from 'rxjs/Observer';
 import {AnyAction, Reducer} from 'redux';
-import {MONOID_APPLY, MonoidAction} from './actions';
-import {MonoidStoreRoot} from './index';
+import store from '../store';
+import {jsonToMonoidActions, MONOID_APPLY, MonoidAction, MonoidStoreRoot} from './';
 
 // streamId -> data
 export type MonoidStoreRoot = Map<string, any>;
@@ -24,3 +25,18 @@ export const monoidStoreReducer: Reducer<MonoidStoreRoot> =
         return state;
     }
   };
+
+export const monoidStoreObserver: Observer<any> = {
+
+  next(value: any) {
+    store.dispatch(jsonToMonoidActions(value));
+  },
+
+  error(err: any) {
+    console.error('storeError', err);
+  },
+
+  complete() {
+    console.info('storeComplete');
+  }
+};

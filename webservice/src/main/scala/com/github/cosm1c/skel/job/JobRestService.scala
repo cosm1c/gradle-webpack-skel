@@ -17,7 +17,7 @@ import scala.concurrent.duration._
 @Path("job")
 class JobRestService(jobManagerActor: ActorRef) extends Directives with JsonProtocol {
 
-    private implicit val timeout: Timeout = Timeout(1.second)
+    private implicit final val timeout: Timeout = Timeout(1.second)
 
     val route: Route =
         pathPrefix("job") {

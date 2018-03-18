@@ -17,14 +17,14 @@ import scala.concurrent.Future
 // TODO: switch to TypedActor when production ready
 class AppSupervisorActor extends Actor with ActorLogging {
 
-    private implicit val actorSystem: ActorSystem = context.system
-    private implicit val materializer: ActorMaterializer = ActorMaterializer()
-    private implicit val clock: Clock = Clock.systemUTC()
+    private implicit final val actorSystem: ActorSystem = context.system
+    private implicit final val materializer: ActorMaterializer = ActorMaterializer()
+    private implicit final val clock: Clock = Clock.systemUTC()
 
     private val httpPort = Main.appConfig.getInt("app.httpPort")
 
-    private val uiStreams = new UiWebSocketFlow()
-    private val uiRoutes = new UiRoutes(uiStreams)(context.dispatcher, log)
+    private val uiStreams = new UiWebSocketFlow()(materializer, context, log)
+    private val uiRoutes = new UiRoutes(uiStreams)(context.dispatcher, materializer, log)
     private val jobManagerActor = context.actorOf(JobManagerActor.props(uiStreams), "JobManagerActor")
     private val jobRestService = new JobRestService(jobManagerActor)
     private val swaggerDocService = new SwaggerDocService(Main.appConfig.getString("build.version"), "/")

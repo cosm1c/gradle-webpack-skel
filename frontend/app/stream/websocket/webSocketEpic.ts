@@ -17,7 +17,7 @@ import 'rxjs/add/operator/takeUntil';
 import {combineEpics, Epic} from 'redux-observable';
 import {default as store, IRootAction, IRootStateRecord} from '../../store';
 import {CONNECT_STREAM, DISCONNECT_STREAM, streamActionCreators as wsActions} from '../index';
-import {jsonToMonoidActions} from '../../monoidstore';
+import {clientStreams} from '../ClientStreams';
 
 // Used by DefinePlugin
 declare const IS_PROD: string;
@@ -41,33 +41,32 @@ function calcWsUrl(): string {
   return window.location.protocol === 'https:' ? `wss://${window.location.host}:8080/ws` : `ws://${window.location.host}/ws`;
 }
 
-function createWebSocket(): WebSocketSubject<any> {
-  const webSocketSubjectConfig: WebSocketSubjectConfig = {
-    url: calcWsUrl(),
-    openObserver: {
-      next: () => {
-        console.info(`[${new Date().toISOString()}] WebSocket connected`);
-        store.dispatch(wsActions.streamConnected());
-      }
-    },
-    closeObserver: {
-      next: () => {
-        console.info(`[${new Date().toISOString()}] WebSocket disconnected`);
-        store.dispatch(wsActions.streamDisconnected());
-      }
-    },
-  };
+// TODO: for unit testing use store dependencies to inject websocket creator
+const webSocketSubjectConfig: WebSocketSubjectConfig = {
+  url: calcWsUrl(),
+  openObserver: {
+    next: () => {
+      console.info(`[${new Date().toISOString()}] WebSocket connected`);
+      store.dispatch(wsActions.streamConnected());
+    }
+  },
+  closeObserver: {
+    next: () => {
+      console.info(`[${new Date().toISOString()}] WebSocket disconnected`);
+      store.dispatch(wsActions.streamDisconnected());
+    }
+  },
+};
 
-  // TODO: for unit testing use store dependencies to inject websocket creator
-  return WebSocketSubject.create(webSocketSubjectConfig) as WebSocketSubject<any>;
-}
+export const webSocketSubject: WebSocketSubject<any> =
+  WebSocketSubject.create(webSocketSubjectConfig) as WebSocketSubject<any>;
 
 export const webSocketEpic: Epic<IRootAction, IRootStateRecord> =
   combineEpics(
     (action$/*, store*/) =>
       action$.ofType(CONNECT_STREAM)
         .switchMap(() =>
-          createWebSocket()
+          webSocketSubject
             .retryWhen(errors => errors.mergeMap(() => {
               if (window.navigator.onLine) {
                 console.debug(`Reconnecting WebSocket in ${RECONNECT_DELAY_MS}ms`);
@@ -77,6 +76,5 @@ export const webSocketEpic: Epic<IRootAction, IRootStateRecord> =
                 .take(1);
             }))
             .takeUntil(action$.ofType(DISCONNECT_STREAM))
-            // Lossless streams could be multiplexed here
-            .map(jsonToMonoidActions)
+            .flatMap(clientStreams.receive)
         ));
