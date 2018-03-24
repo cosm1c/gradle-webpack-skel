@@ -5,4 +5,4 @@ export const selectWebSocketConnectionState: (state: IRootStateRecord) => (Conne
   state => state.get('webSocketState').get('connection');
 
 export const selectWebSocketErrorMessage: (state: IRootStateRecord) => string =
-  state => state.get('webSocketState').get('globalError');
+  state => state.get('webSocketState').get('errorMessage');

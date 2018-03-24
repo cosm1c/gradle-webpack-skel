@@ -1,20 +1,13 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
-import {Label, ListGroupItem, ProgressBar} from 'react-bootstrap';
-import {IJobInfoRecord} from './JobInfo';
+import {Label, ProgressBar} from 'react-bootstrap';
+import {JobState} from './selectors';
+import {Widget} from "../widgetlist/selectors";
 
 export interface JobInfoViewProps {
-  jobInfo: IJobInfoRecord;
+  jobState: JobState;
   className?: string;
   style?: React.CSSProperties;
-}
-
-// TODO: perform calcPercentage in reducer with reselect
-function calcPercentage(jobInfo: IJobInfoRecord) {
-  if (typeof jobInfo.get('total') === 'number' && typeof jobInfo.get('curr') === 'number' && jobInfo.get('total') > 0) {
-    return Math.floor(100 * jobInfo.get('curr') / jobInfo.get('total'));
-  }
-  return null;
 }
 
 function killJob(jobId: number) {
@@ -24,12 +17,13 @@ function killJob(jobId: number) {
 }
 
 export const JobInfoView: React.SFC<JobInfoViewProps> = (props) => {
-  const {className, jobInfo} = props;
+  const {className, jobState} = props;
+  const {jobInfo, percentage} = jobState;
   const componentClass = classNames(className, 'job-list');
-  const percentage = calcPercentage(jobInfo);
 
   return (
-    <ListGroupItem header={jobInfo.get('jobId') + ' - ' + jobInfo.get('description')} className={componentClass}>
+    <div className={componentClass}>
+      <Label>{jobState.jobInfo.description}</Label>
       {jobInfo.has('startDateTime') && <Label bsStyle='info'>Started: {jobInfo.get('startDateTime')}</Label>}
       {jobInfo.has('endDateTime') &&
       <span> <Label bsStyle='info'>Completed: {jobInfo.get('endDateTime')}</Label></span>}
@@ -47,6 +41,15 @@ export const JobInfoView: React.SFC<JobInfoViewProps> = (props) => {
             now={100}/>
           : <ProgressBar/>
       }
-    </ListGroupItem>
+    </div>
   );
 };
+
+export function jobStateToWidget(jobState: JobState): Widget {
+  return {
+    key: `job:${jobState.jobInfo.get('jobId')}`,
+    className: 'job-info-widget',
+    header: `Job ${jobState.jobInfo.get('jobId')}`,
+    element: <JobInfoView jobState={jobState}/>
+  };
+}

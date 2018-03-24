@@ -1,8 +1,7 @@
 import {WebSocketSubject, WebSocketSubjectConfig} from 'rxjs/observable/dom/WebSocketSubject';
 import {Store} from 'redux';
 import {IRootAction, rootEpic$} from '../../store';
-import {websocketActionCreators} from './actions';
-import {createWebSocketEpic} from './';
+import {websocketActionCreators, createWebSocketEpic} from './';
 
 export class WebSocketStream {
 

@@ -28,8 +28,7 @@ export const websocketStateReducer: Reducer<IWebSocketStateRecord> =
         return setWebSocketConnectionState(state, ConnectionStateEnum.CONNECTED);
 
       case WEBSOCKET_ERROR:
-        // TODO: don't drop/overwrite error messages - implement class to handle errors in ringbuffer
-        return state.setIn(['globalError'], action.errorMessage);
+        return state.setIn(['errorMessage'], action.errorMessage);
 
       case WEBSOCKET_CONNECTING:
         return setWebSocketConnectionState(state, ConnectionStateEnum.CONNECTING);

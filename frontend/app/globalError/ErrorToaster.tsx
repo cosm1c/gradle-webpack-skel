@@ -16,9 +16,9 @@ export const ErrorToaster: React.SFC<ErrorToasterProps> = (props) => {
 
   return (
     <div className={componentClass} style={style}>
-      <Collapse in={globalError.lastAckDate !== globalError.date}>
+      <Collapse in={globalError.lastAckDate < globalError.date}>
         <Alert bsStyle='danger' onDismiss={ackGlobalError}>
-          <h4>Error! - {globalError.date.toISOString()}</h4>
+          <h4>Error - {globalError.date.toISOString()}</h4>
           <p>{globalError.error && globalError.error.message}</p>
           <p>
             <Button onClick={ackGlobalError}>Dismiss</Button>

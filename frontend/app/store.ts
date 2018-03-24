@@ -8,8 +8,6 @@ import {GlobalErrorAction, globalErrorReducer, IGlobalErrorStateRecord, initialG
 import {emptyMonoidStore, MonoidAction, monoidStoreReducer, MonoidStoreRoot} from './monoidstore';
 import {initialWebSocketState, IWebSocketStateRecord, WebSocketAction, websocketStateReducer} from './stream/websocket';
 
-// TODO: refactor to use Redux reducer registry so each WebSocket registers itself -- http://nicolasgallagher.com/redux-modules-and-code-splitting/
-
 export type IRootAction =
   WebSocketAction
   | MonoidAction
