@@ -1,7 +1,7 @@
 import * as classNames from 'classnames';
-import {Observer} from 'rxjs/Observer';
 import * as React from 'react';
 import {ListGroup, Panel} from 'react-bootstrap';
+import {ChartView} from './ChartView';
 
 export interface ChartStreamsProps {
   className?: string;
@@ -9,20 +9,39 @@ export interface ChartStreamsProps {
 }
 
 type State = {
-  // charts: ChartView;
+  charts: ChartView[];
 };
 
-// TODO: implement ChartStreams
 export class ChartStreams extends React.Component<ChartStreamsProps, State> {
   state: State = {
     charts: [],
   };
 
-  addStream = () => {
-  };
+  /*
+  addStream: (streamUri: string) => void =
+    (streamUri: string) => {
+      const subscribable = clientStreams.subscribeStream(streamUri);
+
+      // TODO: dismiss(): remove from charts array and unsubscribe
+      const dismiss = () => {
+        console.warn('dismiss() not implemented');
+      };
+
+      const chartView = new ChartView({
+        header: 'Some header',
+      });
+
+      this.setState(prevState => ({
+        charts: [...prevState.charts, chartView]
+      }));
+
+      // TODO: set key for charts children list
+    };
+  */
 
   render() {
-    const {className, style, children} = this.props;
+    const {className, style} = this.props;
+    const {charts} = this.state;
     const componentClass = classNames(className, 'chart-streams');
 
     return (
@@ -32,25 +51,10 @@ export class ChartStreams extends React.Component<ChartStreamsProps, State> {
         </Panel.Heading>
         <Panel.Body>
           <ListGroup>
-            {children}
+            {charts}
           </ListGroup>
         </Panel.Body>
       </Panel>
     );
   }
 }
-
-export const exampleObserver: Observer<any> = {
-
-  next(value: any) {
-    console.info('NEXT:', value);
-  },
-
-  error(err: any) {
-    console.error('ERROR', err);
-  },
-
-  complete() {
-    console.info('COMPLETE');
-  }
-};

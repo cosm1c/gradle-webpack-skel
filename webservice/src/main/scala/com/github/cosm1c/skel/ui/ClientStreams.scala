@@ -84,7 +84,7 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
             case "count" =>
                 clientConnectionActor ! AttachSubStream(
                     streamId,
-                    Streams.count(1, 100)
+                    Streams.count(1, 3)
                         .map(Json.fromInt)
                 )
 

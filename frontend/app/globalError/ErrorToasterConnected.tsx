@@ -2,14 +2,15 @@ import {bindActionCreators} from 'redux';
 import {connect, Dispatch} from 'react-redux';
 import {IRootAction, IRootStateRecord} from '../store';
 import {ErrorToaster} from './ErrorToaster';
-import {selectErrorMessage, streamActionCreators} from '../stream';
+import {selectGlobalErrorMessage} from './selectors';
+import {globalErrorActionCreators} from './actions';
 
 const mapStateToProps = (state: IRootStateRecord) => ({
-  errorMessage: selectErrorMessage(state),
+  globalError: selectGlobalErrorMessage(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<IRootAction>) => bindActionCreators({
-  handleDismiss: () => dispatch(streamActionCreators.streamError('')),
+  ackGlobalError: globalErrorActionCreators.ackGlobalError,
 }, dispatch);
 
 export const ErrorToasterConnected = connect(mapStateToProps, mapDispatchToProps)(ErrorToaster);

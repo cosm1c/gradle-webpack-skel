@@ -1,24 +1,30 @@
-import {applyMiddleware, createStore} from 'redux';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {applyMiddleware, createStore, MiddlewareAPI, Store} from 'redux';
 import {composeWithDevTools} from 'redux-devtools-extension';
-import {combineEpics, createEpicMiddleware, Epic} from 'redux-observable';
+import {ActionsObservable, combineEpics, createEpicMiddleware, Epic} from 'redux-observable';
 import {makeTypedFactory, TypedRecord} from 'typed-immutable-record';
 import {combineReducers} from 'redux-immutable';
-import {initialStreamState, IStreamStateRecord, StreamAction, streamReducer} from './stream/';
-import {webSocketEpic} from './stream/websocket/webSocketEpic';
+import {GlobalErrorAction, globalErrorReducer, IGlobalErrorStateRecord, initialGlobalErrorState} from './globalError';
 import {emptyMonoidStore, MonoidAction, monoidStoreReducer, MonoidStoreRoot} from './monoidstore';
+import {initialWebSocketState, IWebSocketStateRecord, WebSocketAction, websocketStateReducer} from './stream/websocket';
+
+// TODO: refactor to use Redux reducer registry so each WebSocket registers itself -- http://nicolasgallagher.com/redux-modules-and-code-splitting/
 
 export type IRootAction =
-  StreamAction
-  | MonoidAction;
+  WebSocketAction
+  | MonoidAction
+  | GlobalErrorAction;
 
 interface IRootState {
-  streamState: IStreamStateRecord;
+  webSocketState: IWebSocketStateRecord;
   store: MonoidStoreRoot;
+  globalError: IGlobalErrorStateRecord;
 }
 
 const defaultRootState: IRootState = {
-  streamState: initialStreamState,
+  webSocketState: initialWebSocketState,
   store: emptyMonoidStore,
+  globalError: initialGlobalErrorState,
 };
 
 export interface IRootStateRecord extends TypedRecord<IRootStateRecord>, IRootState {
@@ -30,21 +36,28 @@ const initialState = InitialStateFactory(defaultRootState);
 
 const rootReducer = combineReducers<IRootStateRecord>(
   {
-    streamState: streamReducer,
+    webSocketState: websocketStateReducer,
     store: monoidStoreReducer,
+    globalError: globalErrorReducer,
   }
   // do we need to provide getDefaultState here?
 );
 
 export type RootEpic = Epic<IRootAction, IRootStateRecord>;
 
-const rootEpic: RootEpic = combineEpics(
-  webSocketEpic,
-);
+export const rootEpic$: BehaviorSubject<RootEpic> = new BehaviorSubject(combineEpics(
+  // Add epics to start on page load here
+));
+
+export const rootEpic: RootEpic =
+  (action$: ActionsObservable<IRootAction>, store: MiddlewareAPI<IRootStateRecord>) =>
+    rootEpic$.mergeMap(epic =>
+      epic(action$, store, undefined)
+    );
 
 const epicMiddleware = createEpicMiddleware(rootEpic);
 
-const store = createStore(
+const store: Store<IRootStateRecord> = createStore(
   rootReducer,
   initialState!,
   composeWithDevTools(applyMiddleware(epicMiddleware))

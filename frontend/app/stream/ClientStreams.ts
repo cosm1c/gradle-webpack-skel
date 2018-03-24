@@ -1,50 +1,50 @@
 import {Observer} from 'rxjs/Observer';
-import store, {IRootAction} from '../store';
-import {monoidStoreObserver} from '../monoidstore';
-import {streamActionCreators} from './actions';
-import {webSocketSubject} from './websocket/webSocketEpic';
+import {Subscription} from 'rxjs/Subscription';
+import {Store} from 'redux';
+import {IRootAction} from '../store';
+import {globalErrorActionCreators} from '../globalError';
+import {WebSocketStream} from './websocket';
 
-const errorMessageObserver: Observer<any> = {
+export class ClientStreams {
 
-  next(value: any) {
-    store.dispatch(streamActionCreators.streamError(
-      typeof value === 'string' ? value : JSON.stringify(value)
-    ));
-  },
+  public readonly connect: () => void;
+  public readonly disconnect: () => void;
 
-  error(err: any) {
-    console.error('storeError', err);
-    store.dispatch(streamActionCreators.streamError(
-      typeof err === 'string' ? err : JSON.stringify(err)
-    ));
-  },
-
-  complete() {
-    console.info('storeComplete');
-    store.dispatch(streamActionCreators.streamError('storeComplete'));
-  }
-};
-
-class ClientStreams {
-
+  private readonly webSocketStream: WebSocketStream;
   private readonly streams: Map<string, Observer<any>> = new Map<string, Observer<any>>();
 
-  constructor() {
-    this.streams.set('errorMessage', errorMessageObserver);
-    this.streams.set('store', monoidStoreObserver);
+  private streamCounter = 0;
+
+  constructor(wsUrl: string,
+              initialObservers: Map<string, Observer<any>>,
+              private readonly store: Store<any>) {
+    this.webSocketStream = new WebSocketStream(wsUrl, store, this.receiveElement);
+    this.connect = this.webSocketStream.connect.bind(this);
+    this.disconnect = this.webSocketStream.disconnect.bind(this);
+
+    initialObservers.forEach((observer, streamId) => {
+      this.streams.set(streamId, observer);
+    });
   }
 
-  subscribe(streamId: string, streamURI: string, observer: Observer<any>) {
+  subscribeStream(streamURI: string, observer: Observer<any>): Subscription {
+    const streamId = this.nextStreamId();
+
+    this.webSocketStream.send(streamId, streamURI);
     this.streams.set(streamId, observer);
-    const req = {};
-    req[streamId] = streamURI;
-    webSocketSubject.next(JSON.stringify(req));
+
+    const unsubscribeCallback = () => {
+      this.webSocketStream.send(streamId, null);
+      this.streams.delete(streamId);
+    };
+
+    return new Subscription(unsubscribeCallback);
   }
 
-  receive: (msg: any) => IRootAction[] =
+  private readonly receiveElement: (msg: any) => IRootAction[] =
     msg => {
       if (typeof msg !== 'object') {
-        errorMessageObserver.next(`MalformedStreamMessage: ${JSON.stringify(msg)}`);
+        return [globalErrorActionCreators.globalError(new Error(`MalformedStreamMessage: ${JSON.stringify(msg)}`))];
       }
 
       Object.entries(msg)
@@ -54,7 +54,8 @@ class ClientStreams {
             if (this.streams.has(streamId)) {
               this.streams.get(streamId)!.next(value);
             } else {
-              errorMessageObserver.next(`UnknownStream streamId="${streamId}" value=${JSON.stringify(value)}`);
+              this.store.dispatch(
+                globalErrorActionCreators.globalError(new Error(`UnknownStream streamId="${streamId}" value=${JSON.stringify(value)}`)));
             }
           },
           this
@@ -67,21 +68,24 @@ class ClientStreams {
                 if (this.streams.has(streamId)) {
                   this.streams.get(streamId)!.complete();
                 } else {
-                  errorMessageObserver.next(`CompleteUnknownStream streamId="${streamId}"`);
+                  this.store.dispatch(
+                    globalErrorActionCreators.globalError(new Error(`CompleteUnknownStream streamId="${streamId}"`)));
                 }
 
               } else if (typeof cmd === 'string') {
                 if (this.streams.has(streamId)) {
                   this.streams.get(streamId)!.error(cmd);
                 } else {
-                  errorMessageObserver.next(`ErrorUnknownStream streamId="${streamId}" value=${cmd}`);
+                  this.store.dispatch(
+                    globalErrorActionCreators.globalError(new Error(`ErrorUnknownStream streamId="${streamId}" value=${cmd}`)));
                 }
 
               } else {
                 if (this.streams.has(streamId)) {
                   this.streams.get(streamId)!.error(`InvalidStreamCommand streamId="${streamId}" value=${JSON.stringify(cmd)}`);
                 } else {
-                  errorMessageObserver.next(`InvalidUnknownStreamCmd streamId="${streamId}" value=${JSON.stringify(cmd)}`);
+                  this.store.dispatch(
+                    globalErrorActionCreators.globalError(new Error(`InvalidUnknownStreamCmd streamId="${streamId}" value=${JSON.stringify(cmd)}`)));
                 }
               }
             },
@@ -89,8 +93,9 @@ class ClientStreams {
       }
 
       return [];
-    }
+    };
 
+  private nextStreamId(): string {
+    return `s${this.streamCounter++}`;
+  }
 }
-
-export const clientStreams = new ClientStreams();
