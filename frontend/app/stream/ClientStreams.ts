@@ -35,7 +35,6 @@ export class ClientStreams {
 
     const unsubscribeCallback = () => {
       this.webSocketStream.send(streamId, null);
-      this.streams.delete(streamId);
     };
 
     return new Subscription(unsubscribeCallback);

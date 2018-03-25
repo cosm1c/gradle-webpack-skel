@@ -1,10 +1,10 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import {Label, ProgressBar} from 'react-bootstrap';
-import {JobState} from './selectors';
-import {Widget} from "../widgetlist/selectors";
+import {Widget} from '../widgetlist';
+import {JobState} from './';
 
-export interface JobInfoViewProps {
+export interface JobViewProps {
   jobState: JobState;
   className?: string;
   style?: React.CSSProperties;
@@ -16,13 +16,13 @@ function killJob(jobId: number) {
     .catch(e => console.error('Failed to kill job', e));
 }
 
-export const JobInfoView: React.SFC<JobInfoViewProps> = (props) => {
-  const {className, jobState} = props;
+export const JobView: React.SFC<JobViewProps> = (props) => {
+  const {className, style, jobState} = props;
   const {jobInfo, percentage} = jobState;
-  const componentClass = classNames(className, 'job-list');
+  const componentClass = classNames(className, 'job-view');
 
   return (
-    <div className={componentClass}>
+    <div className={componentClass} style={style}>
       <Label>{jobState.jobInfo.description}</Label>
       {jobInfo.has('startDateTime') && <Label bsStyle='info'>Started: {jobInfo.get('startDateTime')}</Label>}
       {jobInfo.has('endDateTime') &&
@@ -47,9 +47,8 @@ export const JobInfoView: React.SFC<JobInfoViewProps> = (props) => {
 
 export function jobStateToWidget(jobState: JobState): Widget {
   return {
-    key: `job:${jobState.jobInfo.get('jobId')}`,
-    className: 'job-info-widget',
-    header: `Job ${jobState.jobInfo.get('jobId')}`,
-    element: <JobInfoView jobState={jobState}/>
+    itemKey: `job:${jobState.jobInfo.get('jobId')}`,
+    itemClassName: 'job-info-widget',
+    element: <JobView jobState={jobState}/>
   };
 }

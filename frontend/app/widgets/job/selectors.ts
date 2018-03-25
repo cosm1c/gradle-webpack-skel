@@ -1,4 +1,4 @@
-import {Iterable, Map} from 'immutable';
+import {Map} from 'immutable';
 import {createSelector, OutputSelector} from 'reselect';
 import {IRootStateRecord} from '../../store';
 import {emptyMonoidStore} from '../../monoidstore';
@@ -24,7 +24,7 @@ export function sortByJobId(lhs: JobState, rhs: JobState): number {
   return lhs.jobInfo.jobId - rhs.jobInfo.jobId;
 }
 
-export const selectJobStates: OutputSelector<IRootStateRecord, Iterable<number, JobState>, (res: JobsMap) => Iterable<number, JobState>> =
+export const selectJobStates: OutputSelector<IRootStateRecord, JobState[], (res: JobsMap) => JobState[]> =
   createSelector(
     (rootState: IRootStateRecord) => rootState.get('store', emptyMonoidStore).get('jobs', emptyJobs),
     (jobsMap) => jobsMap
@@ -35,4 +35,5 @@ export const selectJobStates: OutputSelector<IRootStateRecord, Iterable<number, 
           percentage: calcPercentage(jobInfo),
         };
       })
+      .toArray().sort(sortByJobId)
   );

@@ -7,22 +7,26 @@ import {combineReducers} from 'redux-immutable';
 import {GlobalErrorAction, globalErrorReducer, IGlobalErrorStateRecord, initialGlobalErrorState} from './globalError';
 import {emptyMonoidStore, MonoidAction, monoidStoreReducer, MonoidStoreRoot} from './monoidstore';
 import {initialWebSocketState, IWebSocketStateRecord, WebSocketAction, websocketStateReducer} from './stream/websocket';
+import {ChartStreamAction, ChartStreamMap, chartStreamReducer, emptyChartStreamMap} from './widgets/chartstream';
 
 export type IRootAction =
   WebSocketAction
   | MonoidAction
+  | ChartStreamAction
   | GlobalErrorAction;
 
 interface IRootState {
   webSocketState: IWebSocketStateRecord;
   store: MonoidStoreRoot;
   globalError: IGlobalErrorStateRecord;
+  chartStreams: ChartStreamMap;
 }
 
 const defaultRootState: IRootState = {
   webSocketState: initialWebSocketState,
   store: emptyMonoidStore,
   globalError: initialGlobalErrorState,
+  chartStreams: emptyChartStreamMap,
 };
 
 export interface IRootStateRecord extends TypedRecord<IRootStateRecord>, IRootState {
@@ -37,6 +41,7 @@ const rootReducer = combineReducers<IRootStateRecord>(
     webSocketState: websocketStateReducer,
     store: monoidStoreReducer,
     globalError: globalErrorReducer,
+    chartStreams: chartStreamReducer,
   }
   // do we need to provide getDefaultState here?
 );

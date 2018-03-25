@@ -10,6 +10,7 @@ import {ClientStreams, WebSocketStreamStatusConnected} from './stream';
 import {monoidStoreObserver} from './monoidstore';
 import {ClientCountConnected} from './clientsCount';
 import {WidgetListConnected} from './widgets/widgetlist';
+import {chartStreamActionCreators} from './widgets/chartstream';
 
 // Used by DefinePlugin
 declare const IS_PROD: string;
@@ -59,20 +60,18 @@ const Root = (
 
             <NavItem eventKey={3}>
               <ButtonGroup>
-                <Button bsStyle='primary' bsSize='xsmall' onClick={() =>
-                  clientStreams.subscribeStream('sine', {
-                    next: (data: any) => console.info('NEXT:', data),
-                    error: (err: any) => console.error('ERROR:', err),
-                    complete: () => console.info('COMPLETE'),
-                  })
-                }>Sine</Button>
-                <Button bsStyle='primary' bsSize='xsmall' onClick={() =>
-                  clientStreams.subscribeStream('count', {
-                    next: (data: any) => console.info('NEXT:', data),
-                    error: (err: any) => console.error('ERROR:', err),
-                    complete: () => console.info('COMPLETE'),
-                  })
-                }>Count</Button>
+                <Button bsStyle='primary' bsSize='xsmall'
+                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('sine'))}>Sine</Button>
+                <Button bsStyle='primary' bsSize='xsmall'
+                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('sineSlow'))}>Sine
+                  Slow</Button>
+                <Button bsStyle='primary' bsSize='xsmall'
+                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('count'))}>Count</Button>
+                <Button bsStyle='primary' bsSize='xsmall'
+                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('countSlow'))}>Count
+                  Slow</Button>
+                <Button bsStyle='primary' bsSize='xsmall'
+                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('error'))}>Error</Button>
               </ButtonGroup>
             </NavItem>
 

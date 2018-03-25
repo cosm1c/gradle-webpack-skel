@@ -1,6 +1,7 @@
 package com.github.cosm1c.skel.ui
 
 import java.net.URI
+import java.time.ZonedDateTime
 
 import akka.actor.ActorRefFactory
 import akka.event.LoggingAdapter
@@ -8,6 +9,7 @@ import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage}
 import akka.stream.scaladsl.{BroadcastHub, Keep, MergeHub, Sink, Source}
 import akka.stream.{KillSwitches, Materializer, UniqueKillSwitch}
 import akka.{Done, NotUsed}
+import com.github.cosm1c.skel.JsonProtocol
 import com.github.cosm1c.skel.streams.Streams
 import com.github.cosm1c.skel.ui.ClientConnectionActor.{AttachSubStream, CancelSubStream, ErrorSubStream}
 import io.circe.parser.parse
@@ -15,7 +17,13 @@ import io.circe.{Json, ParsingFailure}
 
 import scala.concurrent.Future
 
-class ClientStreams()(implicit materializer: Materializer, actorRefFactory: ActorRefFactory, log: LoggingAdapter) {
+object ClientStreams {
+
+    final case class ChartPoint(x: ZonedDateTime, y: BigDecimal)
+
+}
+
+class ClientStreams()(implicit materializer: Materializer, actorRefFactory: ActorRefFactory, log: LoggingAdapter) extends JsonProtocol {
 
     private val clientConnectionActor = actorRefFactory.actorOf(ClientConnectionActor.props(this))
 
@@ -78,28 +86,34 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
                 clientConnectionActor ! AttachSubStream(
                     streamId,
                     Streams.sine(1, 100, 0.1)
-                        .map(Json.fromBigDecimal)
+                        .map(chartPointEncoder.apply)
                 )
 
             case "count" =>
                 clientConnectionActor ! AttachSubStream(
                     streamId,
-                    Streams.count(1, 3)
-                        .map(Json.fromInt)
+                    Streams.count(1, 1000)
+                        .map(chartPointEncoder.apply)
                 )
 
             case "sineSlow" =>
                 clientConnectionActor ! AttachSubStream(
                     streamId,
                     Streams.sineSlow(1, 100, 0.1)
-                        .map(Json.fromBigDecimal)
+                        .map(chartPointEncoder.apply)
                 )
 
             case "countSlow" =>
                 clientConnectionActor ! AttachSubStream(
                     streamId,
-                    Streams.countSlow(1, 100)
-                        .map(Json.fromInt)
+                    Streams.countSlow(1, 1000)
+                        .map(chartPointEncoder.apply)
+                )
+
+            case "error" =>
+                clientConnectionActor ! AttachSubStream(
+                    streamId,
+                    Streams.error
                 )
 
             case _ => clientConnectionActor ! ErrorSubStream(streamId, s"""NotFound streamUri="$streamUri"""")

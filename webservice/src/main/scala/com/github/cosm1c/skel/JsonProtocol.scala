@@ -1,7 +1,11 @@
 package com.github.cosm1c.skel
 
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+
 import com.github.cosm1c.skel.health.HealthRestService.HealthInfo
 import com.github.cosm1c.skel.job.JobManagerActor.JobInfo
+import com.github.cosm1c.skel.ui.ClientStreams.ChartPoint
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import io.circe.Json.fromJsonObject
 import io.circe.generic.semiauto._
@@ -9,6 +13,9 @@ import io.circe.java8.time.TimeInstances
 import io.circe.{Decoder, _}
 
 trait JsonProtocol extends FailFastCirceSupport with TimeInstances {
+
+    implicit val ZonedDateTimeFormat: Encoder[ZonedDateTime] =
+        (value: ZonedDateTime) => Encoder.encodeString.apply(DateTimeFormatter.ISO_INSTANT.format(value))
 
     def conflateJsonKeepNulls(state: Json, delta: Json): Json =
         state.deepMerge(delta)
@@ -39,6 +46,8 @@ trait JsonProtocol extends FailFastCirceSupport with TimeInstances {
 
 
     implicit final val healthInfoEncoder: Encoder[HealthInfo] = deriveEncoder
+
+    implicit final val chartPointEncoder: Encoder[ChartPoint] = deriveEncoder
 
 
     implicit final val jobInfoDecoder: Decoder[JobInfo] = deriveDecoder[JobInfo]

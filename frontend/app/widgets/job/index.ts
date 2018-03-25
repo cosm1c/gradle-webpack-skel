@@ -1,3 +1,3 @@
 export * from './JobInfoRecord';
-export * from './JobInfoView';
+export * from './JobView';
 export * from './selectors';

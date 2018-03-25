@@ -12,11 +12,11 @@ export interface WidgetListProps {
 export const WidgetList: React.SFC<WidgetListProps> = (props) => {
   const {className, style, widgets} = props;
   const componentClass = classNames(className, 'widget-list');
-debugger;
+
   return (
     <ListGroup className={componentClass} style={style}>{
       widgets.map(widget =>
-        <ListGroupItem key={widget.key} header={widget.header} className={widget.className}>
+        <ListGroupItem key={widget.itemKey} className={widget.itemClassName} style={widget.itemStyle}>
           {widget.element}
         </ListGroupItem>)
     }</ListGroup>
