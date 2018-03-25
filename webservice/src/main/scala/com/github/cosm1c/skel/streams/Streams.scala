@@ -19,7 +19,7 @@ object Streams {
 
     def countSlow(start: Int, end: Int): Source[ChartPoint, NotUsed] =
         count(start, end)
-            .throttle(1, 100.milliseconds, 1, ThrottleMode.shaping)
+            .throttle(1, 1.second, 1, ThrottleMode.shaping)
 
     def sine(start: Double, end: Double, step: Double): Source[ChartPoint, NotUsed] =
         Source(start to(end, step))

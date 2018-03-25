@@ -23,6 +23,7 @@ object ClientStreams {
 
 }
 
+
 class ClientStreams()(implicit materializer: Materializer, actorRefFactory: ActorRefFactory, log: LoggingAdapter) extends JsonProtocol {
 
     private val clientConnectionActor = actorRefFactory.actorOf(ClientConnectionActor.props(this))
@@ -42,7 +43,8 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
                     .map(receiveClientMessage)(materializer.executionContext)
 
             case BinaryMessage.Streamed(dataStream) =>
-                sendGlobalErrorMessage("Terminating client due to unexpected streamed binary messsage")
+                sendGlobalErrorMessage("Terminating client due to unexpected streamed binary " +
+                    "messsage")
                 dataStream.runWith(Sink.cancelled)
                 clientKillSwitch.abort(new RuntimeException("Unexpected binary stream received"))
 
@@ -51,7 +53,7 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
                 clientKillSwitch.abort(new RuntimeException("Unexpected binary message received"))
         }
 
-    def sendGlobalErrorMessage(errorMessage: String): Unit = {
+    private def sendGlobalErrorMessage(errorMessage: String): Unit = {
         Source.single(Json.obj("errorMessage" -> Json.fromString(errorMessage))).runWith(clientSink)
         log.warning(errorMessage)
     }
@@ -79,34 +81,34 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
             case Left(ParsingFailure(errorMessage, _)) => sendGlobalErrorMessage(s"""StreamParsingFailure errorMessage="$errorMessage"""")
         }
 
-    // TODO: parseURI query params
-    private def subscribeStream(streamId: String, streamUri: URI): Unit =
+    private def subscribeStream(streamId: String, streamUri: URI): Unit = {
+        // TODO: parseURI query params for start/end/step
         streamUri.getPath match {
-            case "sine" =>
-                clientConnectionActor ! AttachSubStream(
-                    streamId,
-                    Streams.sine(1, 100, 0.1)
-                        .map(chartPointEncoder.apply)
-                )
-
             case "count" =>
                 clientConnectionActor ! AttachSubStream(
                     streamId,
-                    Streams.count(1, 1000)
-                        .map(chartPointEncoder.apply)
-                )
-
-            case "sineSlow" =>
-                clientConnectionActor ! AttachSubStream(
-                    streamId,
-                    Streams.sineSlow(1, 100, 0.1)
+                    Streams.count(1, 10)
                         .map(chartPointEncoder.apply)
                 )
 
             case "countSlow" =>
                 clientConnectionActor ! AttachSubStream(
                     streamId,
-                    Streams.countSlow(1, 1000)
+                    Streams.countSlow(1, 10)
+                        .map(chartPointEncoder.apply)
+                )
+
+            case "sine" =>
+                clientConnectionActor ! AttachSubStream(
+                    streamId,
+                    Streams.sine(0, 7, 0.007)
+                        .map(chartPointEncoder.apply)
+                )
+
+            case "sineSlow" =>
+                clientConnectionActor ! AttachSubStream(
+                    streamId,
+                    Streams.sineSlow(1, 1000, 0.1)
                         .map(chartPointEncoder.apply)
                 )
 
@@ -118,5 +120,6 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
 
             case _ => clientConnectionActor ! ErrorSubStream(streamId, s"""NotFound streamUri="$streamUri"""")
         }
+    }
 
 }

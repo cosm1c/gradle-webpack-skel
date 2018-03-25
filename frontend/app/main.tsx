@@ -61,14 +61,14 @@ const Root = (
             <NavItem eventKey={3}>
               <ButtonGroup>
                 <Button bsStyle='primary' bsSize='xsmall'
-                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('sine'))}>Sine</Button>
-                <Button bsStyle='primary' bsSize='xsmall'
-                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('sineSlow'))}>Sine
-                  Slow</Button>
-                <Button bsStyle='primary' bsSize='xsmall'
                         onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('count'))}>Count</Button>
                 <Button bsStyle='primary' bsSize='xsmall'
                         onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('countSlow'))}>Count
+                  Slow</Button>
+                <Button bsStyle='primary' bsSize='xsmall'
+                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('sine'))}>Sine</Button>
+                <Button bsStyle='primary' bsSize='xsmall'
+                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('sineSlow'))}>Sine
                   Slow</Button>
                 <Button bsStyle='primary' bsSize='xsmall'
                         onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('error'))}>Error</Button>

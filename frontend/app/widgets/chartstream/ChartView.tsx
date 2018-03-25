@@ -17,7 +17,7 @@ export interface ChartViewProps {
 
 type State = {
   subscription?: Subscription;
-  error?: string;
+  error?: string | Error;
 };
 
 Chart.defaults.global.animation = Chart.defaults.global.animation || {};
@@ -30,7 +30,7 @@ export class ChartView extends React.Component<ChartViewProps, State> {
   private element?: HTMLCanvasElement;
   private chart?: Chart;
 
-  private readonly chartUpdate$: Subject<any> = new Subject().debounceTime(10) as Subject<any>;
+  private readonly chartUpdate$: Subject<any> = new Subject().debounceTime(15) as Subject<any>;
 
   constructor(props: ChartViewProps) {
     super(props);
@@ -82,14 +82,7 @@ export class ChartView extends React.Component<ChartViewProps, State> {
 
   componentDidMount() {
     this.chart = new Chart(this.element!, this.props.chartStream.get('chartConfig'));
-    this.chartUpdate$.subscribe(_ignore => {
-      if (this.chart) {
-        this.chart.update();
-
-      } else {
-        throw new Error();
-      }
-    });
+    this.chartUpdate$.subscribe(_ignore => this.forceChartUpdate());
   }
 
   componentWillUnmount() {
@@ -127,7 +120,8 @@ export class ChartView extends React.Component<ChartViewProps, State> {
           <Button disabled={subscription === undefined} className='pull-right clearfix' bsStyle='warning'
                   bsSize='xsmall' onClick={this.cancelStream}>Cancel Stream</Button>
           <h4>Chart {chartStream.get('streamURI')}
-            {typeof error === 'string' && <span> - <Label bsStyle='danger'>{error}</Label></span>}</h4>
+            {this.state.error !== undefined &&
+            (<span> - <Label bsStyle='danger'>{error instanceof Error ? error.message : error}</Label></span>)}</h4>
         </Panel.Heading>
         <Panel.Body>
           <canvas ref={this.ref}/>

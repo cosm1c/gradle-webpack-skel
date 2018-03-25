@@ -18,13 +18,31 @@ export class ClientStreams {
   constructor(wsUrl: string,
               initialObservers: Map<string, Observer<any>>,
               private readonly store: Store<any>) {
-    this.webSocketStream = new WebSocketStream(wsUrl, store, this.receiveElement);
+    this.allStreamsDisconnected = this.allStreamsDisconnected.bind(this);
+    this.webSocketStream = new WebSocketStream(
+      wsUrl,
+      store,
+      this.receiveElement,
+      () => {
+        // after WebSocket connected event
+      },
+      () => {
+        // after WebSocket disconnected event
+        this.allStreamsDisconnected();
+      }
+    );
+
     this.connect = this.webSocketStream.connect.bind(this);
     this.disconnect = this.webSocketStream.disconnect.bind(this);
 
     initialObservers.forEach((observer, streamId) => {
       this.streams.set(streamId, observer);
     });
+  }
+
+  private allStreamsDisconnected() {
+    const error = new Error('Main socket disconnected');
+    this.streams.forEach(i => i.error(error));
   }
 
   subscribeStream(streamURI: string, observer: Observer<any>): Subscription {
