@@ -30,6 +30,6 @@ object Streams {
             .throttle(1, 100.milliseconds, 1, ThrottleMode.shaping)
 
     val error: Source[Nothing, NotUsed] =
-        Source.failed(new RuntimeException("Error Source"))
+        Source.failed(new RuntimeException("Example client stream error"))
 
 }

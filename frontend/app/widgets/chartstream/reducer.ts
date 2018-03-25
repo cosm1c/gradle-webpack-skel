@@ -15,6 +15,7 @@ const chartOption: ChartOptions = {
       tension: 0, // disables bezier curves
     }
   },
+  maintainAspectRatio: false,
   scales: {
     xAxes: [{
       type: 'time',
@@ -56,6 +57,7 @@ export const chartStreamReducer: Reducer<ChartStreamMap> =
                     label: action.streamURI,
                     backgroundColor: 'blue',
                     borderColor: 'black',
+                    pointRadius: 1.75,
                     fill: false,
                     data: [], // ChartPoint[]
                   }]

@@ -123,7 +123,7 @@ export class ChartView extends React.Component<ChartViewProps, State> {
             {this.state.error !== undefined &&
             (<span> - <Label bsStyle='danger'>{error instanceof Error ? error.message : error}</Label></span>)}</h4>
         </Panel.Heading>
-        <Panel.Body>
+        <Panel.Body className='chartjs-container'>
           <canvas ref={this.ref}/>
         </Panel.Body>
       </Panel>

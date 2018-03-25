@@ -101,14 +101,14 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
             case "sine" =>
                 clientConnectionActor ! AttachSubStream(
                     streamId,
-                    Streams.sine(0, 7, 0.007)
+                    Streams.sine(0, 32, 0.25)
                         .map(chartPointEncoder.apply)
                 )
 
             case "sineSlow" =>
                 clientConnectionActor ! AttachSubStream(
                     streamId,
-                    Streams.sineSlow(1, 1000, 0.1)
+                    Streams.sineSlow(0, 32, 0.25)
                         .map(chartPointEncoder.apply)
                 )
 

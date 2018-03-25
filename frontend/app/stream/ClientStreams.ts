@@ -43,6 +43,7 @@ export class ClientStreams {
   private allStreamsDisconnected() {
     const error = new Error('Main socket disconnected');
     this.streams.forEach(i => i.error(error));
+    this.streams.clear();
   }
 
   subscribeStream(streamURI: string, observer: Observer<any>): Subscription {
@@ -55,7 +56,11 @@ export class ClientStreams {
       this.webSocketStream.send(streamId, null);
     };
 
-    return new Subscription(unsubscribeCallback);
+    const subscription = new Subscription(unsubscribeCallback);
+
+    subscription.add(() => this.streams.delete(streamId));
+
+    return subscription;
   }
 
   private readonly receiveElement: (msg: any) => IRootAction[] =
