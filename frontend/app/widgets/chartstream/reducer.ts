@@ -53,6 +53,7 @@ export const chartStreamReducer: Reducer<ChartStreamMap> =
 
                 data: {
                   datasets: [{
+                    label: action.streamURI,
                     backgroundColor: 'blue',
                     borderColor: 'black',
                     fill: false,
