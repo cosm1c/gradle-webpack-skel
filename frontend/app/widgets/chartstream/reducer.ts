@@ -52,12 +52,11 @@ export const chartStreamReducer: Reducer<ChartStreamMap> =
                 type: 'line',
 
                 data: {
-                  labels: [],
                   datasets: [{
-                    label: 'My First dataset',
                     backgroundColor: 'blue',
                     borderColor: 'black',
                     fill: false,
+                    data: [], // ChartPoint[]
                   }]
                 },
 

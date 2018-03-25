@@ -45,12 +45,7 @@ export class ChartView extends React.Component<ChartViewProps, State> {
             throw new Error('Undefined this.chart.data.datasets');
           }
 
-          // console.debug('x:', chartPoint.x, ' -- y:', chartPoint.y);
-          this.chart.data.labels!.push(chartPoint.x);
-          this.chart.data.datasets!.forEach((dataset) => {
-            dataset.data.push(chartPoint.y);
-          });
-
+          (this.chart.data.datasets[0].data! as Chart.ChartPoint[]).push(chartPoint);
           this.throttledChartUpdate();
 
         } else {

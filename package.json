@@ -5,7 +5,7 @@
   "dependencies": {
     "@types/chart.js": "^2.7.10",
     "@types/classnames": "^2.2.3",
-    "@types/react": "^16.0.3",
+    "@types/react": "^16.0.41",
     "@types/react-bootstrap": "^0.32.6",
     "@types/react-dom": "^16.0.1",
     "@types/react-redux": "^5.0.10",
@@ -31,8 +31,8 @@
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {
-    "@types/jest": "^22.2.0",
-    "@types/node": "^9.4.6",
+    "@types/jest": "^22.2.2",
+    "@types/node": "^9.6.0",
     "ajv": "^6.2.1",
     "cache-loader": "^1.1.0",
     "css-loader": "^0.28.7",
@@ -43,11 +43,11 @@
     "gulp": "^3.9.1",
     "html-loader": "^0.5.1",
     "html-webpack-plugin": "^3.0.4",
-    "jest": "^22.4.2",
+    "jest": "^22.4.3",
     "less": "^2.3.1",
     "less-loader": "^4.0.5",
     "less-plugin-clean-css": "^1.5.1",
-    "npm": "^5.7.1",
+    "npm": "^5.8.0",
     "npm-run": "^4.1.2",
     "null-loader": "^0.1.1",
     "raw-loader": "^0.5.1",

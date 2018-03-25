@@ -5,8 +5,9 @@ Simple starter for a backend and frontend application with updates sent over Web
 NOTE: Webpack 4 not yet supported due to missing updates for some plugins.
 
 ## Release Command
+Self executing Jar will be at `webservice/build/libs/webservice-<version>-all.jar`
 ```
-./gradlew clean && ./gradlew build
+npm install && ./gradlew clean build
 ```
 
 ## Frontend Development Environment
@@ -21,11 +22,4 @@ Start in a dedicated terminal:
 Start in a dedicated terminal and access at [http://localhost:9090/](http://localhost:9090/):
 ```
 ./gradlew :frontend:runDevServer
-```
-
-
-## WebService Development Environment
-
-```
-./gradlew :webservice:test -t
 ```
