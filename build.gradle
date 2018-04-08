@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -12,6 +14,8 @@ allprojects {
         scalaBinaryVersion = '2.12'
         scalaPatchVersion = '4'
         buildTime = DateTimeFormatter.ISO_ZONED_DATE_TIME.format(ZonedDateTime.now())
+        npmCommand = Os.isFamily(Os.FAMILY_WINDOWS) ? 'npm.cmd' : '/usr/local/bin/npm'
+        npmPath = Os.isFamily(Os.FAMILY_WINDOWS) ? '' : '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
     }
 }
 

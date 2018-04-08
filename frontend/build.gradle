@@ -1,36 +1,28 @@
-buildscript {
-    repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-
-    dependencies {
-        classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
-    }
-}
-
 apply plugin: 'idea'
-apply plugin: 'com.moowork.node'
 
 project.buildDir = 'dist'
 
-task clean(type: NpmTask) {
-    args = ['run', 'clean']
+task clean(type: Exec) {
+    environment PATH: npmPath
+    commandLine = [npmCommand, 'run', 'clean']
 }
 
-task runDevServer(type: NpmTask) {
-    args = ['run', 'dev-server']
+task runDevServer(type: Exec) {
+    environment PATH: npmPath
+    commandLine = [npmCommand, 'run', 'dev-server']
 }
 
-task test(type: NpmTask) {
-    args = ['run', 'test']
+task test(type: Exec) {
+    environment PATH: npmPath
+    commandLine = [npmCommand, 'run', 'test']
 }
 
-task buildPackage(type: NpmTask) {
-    args = ['run', 'package']
+task buildPackage(type: Exec) {
+    environment PATH: npmPath
+    commandLine = [npmCommand, 'run', 'package']
 }
 
-task ciPackage(type: NpmTask) {
-    args = ['run', 'ci-package']
+task ciPackage(type: Exec) {
+    environment PATH: npmPath
+    commandLine = [npmCommand, 'run', 'ci-package']
 }
