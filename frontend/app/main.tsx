@@ -4,7 +4,7 @@ import store from './store';
 import * as React from 'react';
 import {render} from 'react-dom';
 import {Provider} from 'react-redux';
-import {Button, ButtonGroup, Nav, Navbar, NavItem} from 'react-bootstrap';
+import {Button, Nav, Navbar, NavItem} from 'react-bootstrap';
 import {ErrorToasterConnected} from './globalError';
 import {ClientStreams, WebSocketStreamStatusConnected} from './stream';
 import {monoidStoreObserver} from './monoidstore';
@@ -57,24 +57,10 @@ const Root = (
           <Nav pullRight={true}>
             <NavItem eventKey={1}><WebSocketStreamStatusConnected/></NavItem>
             <NavItem eventKey={2}><ClientCountConnected/></NavItem>
-
             <NavItem eventKey={3}>
-              <ButtonGroup>
-                <Button bsStyle='primary' bsSize='xsmall'
-                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('count'))}>Count</Button>
-                <Button bsStyle='primary' bsSize='xsmall'
-                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('countSlow'))}>Count
-                  Slow</Button>
-                <Button bsStyle='primary' bsSize='xsmall'
-                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('sine'))}>Sine</Button>
-                <Button bsStyle='primary' bsSize='xsmall'
-                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('sineSlow'))}>Sine
-                  Slow</Button>
-                <Button bsStyle='primary' bsSize='xsmall'
-                        onClick={() => store.dispatch(chartStreamActionCreators.addChartStream('error'))}>Error</Button>
-              </ButtonGroup>
+              <Button bsStyle='primary' bsSize='xsmall'
+                      onClick={() => store.dispatch(chartStreamActionCreators.addChartStream())}>Add Chart</Button>
             </NavItem>
-
           </Nav>
         </Navbar.Collapse>
       </Navbar>

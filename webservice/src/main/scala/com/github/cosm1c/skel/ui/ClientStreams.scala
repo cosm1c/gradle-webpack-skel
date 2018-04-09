@@ -1,10 +1,10 @@
 package com.github.cosm1c.skel.ui
 
-import java.net.URI
 import java.time.ZonedDateTime
 
 import akka.actor.ActorRefFactory
 import akka.event.LoggingAdapter
+import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage}
 import akka.stream.scaladsl.{BroadcastHub, Keep, MergeHub, Sink, Source}
 import akka.stream.{KillSwitches, Materializer, UniqueKillSwitch}
@@ -19,7 +19,7 @@ import scala.concurrent.Future
 
 object ClientStreams {
 
-    final case class ChartPoint(x: ZonedDateTime, y: BigDecimal)
+    final case class ChartPoint(x: ZonedDateTime, y: BigDecimal /*, r: BigDecimal*/)
 
 }
 
@@ -70,7 +70,7 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
                         clientConnectionActor ! CancelSubStream(streamId)
 
                     case (streamId, jsonArg) if jsonArg.isString =>
-                        subscribeStream(streamId, URI.create(jsonArg.asString.get))
+                        subscribeStream(streamId, Uri(jsonArg.asString.get))
 
                     case (streamId, jsonArg) =>
                         clientConnectionActor ! ErrorSubStream(streamId, s"""InvalidMessage streamId="$streamId" value="${jsonArg.toString}"""")
@@ -81,34 +81,90 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
             case Left(ParsingFailure(errorMessage, _)) => sendGlobalErrorMessage(s"""StreamParsingFailure errorMessage="$errorMessage"""")
         }
 
-    private def subscribeStream(streamId: String, streamUri: URI): Unit = {
-        // TODO: parseURI query params for start/end/step
-        streamUri.getPath match {
-            case "count" =>
+    private def parseStartAndEndDate(query: Uri.Query): (ZonedDateTime, ZonedDateTime) = {
+        val now = ZonedDateTime.now()
+        (
+            query
+                .get("startDate")
+                .map(ZonedDateTime.parse)
+                .getOrElse {
+                    now.minusHours(12L)
+                },
+            query
+                .get("endDate")
+                .map(ZonedDateTime.parse)
+                .getOrElse {
+                    now.plusHours(12L)
+                }
+        )
+    }
+
+    private def subscribeStream(streamId: String, streamUri: Uri): Unit = {
+        val query = streamUri.query()
+        streamUri.path.toString() match {
+            case "solar" =>
+                val (start, end) = parseStartAndEndDate(query)
                 clientConnectionActor ! AttachSubStream(
                     streamId,
-                    Streams.count(1, 10)
+                    Streams.solar(
+                        start,
+                        end,
+                        query.get("ticks")
+                            .map(Integer.parseInt)
+                            .getOrElse(100)
+                    ).map(_.map(chartPointEncoder.apply))
+                        .map(Json.arr)
+                )
+
+            case "solarSlow" =>
+                val (start, end) = parseStartAndEndDate(query)
+                clientConnectionActor ! AttachSubStream(
+                    streamId,
+                    Streams.solarSlow(
+                        start,
+                        end,
+                        query.get("ticks")
+                            .map(Integer.parseInt)
+                            .getOrElse(100)
+                    ).map(_.map(chartPointEncoder.apply))
+                        .map(Json.arr)
+                )
+
+            case "count" =>
+                val start = query.getOrElse("start", "0").toInt
+                val end = query.getOrElse("end", "10").toInt
+                clientConnectionActor ! AttachSubStream(
+                    streamId,
+                    Streams.count(start, end)
                         .map(chartPointEncoder.apply)
                 )
 
             case "countSlow" =>
+                val start = query.getOrElse("start", "0").toInt
+                val end = query.getOrElse("end", "10").toInt
                 clientConnectionActor ! AttachSubStream(
                     streamId,
-                    Streams.countSlow(1, 10)
+                    Streams.countSlow(start, end)
                         .map(chartPointEncoder.apply)
                 )
 
             case "sine" =>
+                val start = query.getOrElse("start", "0").toDouble
+                val end = query.getOrElse("end", "32").toDouble
+                val step = query.getOrElse("step", "0.25").toDouble
                 clientConnectionActor ! AttachSubStream(
                     streamId,
-                    Streams.sine(0, 32, 0.25)
+                    Streams.sine(start, end, step)
                         .map(chartPointEncoder.apply)
                 )
 
             case "sineSlow" =>
+                val start = query.getOrElse("start", "0").toDouble
+                val end = query.getOrElse("end", "32").toDouble
+                val step = query.getOrElse("step", "0.25").toDouble
                 clientConnectionActor ! AttachSubStream(
                     streamId,
-                    Streams.sineSlow(0, 32, 0.25)
+                    Streams.sineSlow(start, end, step)
                         .map(chartPointEncoder.apply)
                 )
 

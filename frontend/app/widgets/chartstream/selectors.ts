@@ -1,18 +1,13 @@
-import {Map} from 'immutable';
+import {List} from 'immutable';
 import {createSelector, OutputSelector} from 'reselect';
 import {IRootStateRecord} from '../../store';
-import {IChartStreamRecord} from './';
 
-export type ChartStreamMap = Map<string, IChartStreamRecord>;
+export type ChartStreamList = List<string>;
 
-export const emptyChartStreamMap = Map<string, IChartStreamRecord>();
+export const emptyChartStreamList = List<string>();
 
-function sortChartStreamRecordByKey(lhs: IChartStreamRecord, rhs: IChartStreamRecord) {
-  return lhs.get('key').localeCompare(rhs.get('key'));
-}
-
-export const selectChartStreams: OutputSelector<IRootStateRecord, IChartStreamRecord[], (res: ChartStreamMap) => IChartStreamRecord[]> =
+export const selectChartKeys: OutputSelector<IRootStateRecord, string[], (res: ChartStreamList) => string[]> =
   createSelector(
-    (rootState: IRootStateRecord) => rootState.get('chartStreams', emptyChartStreamMap),
-    (chartStreamsMap) => chartStreamsMap.valueSeq().toArray().sort(sortChartStreamRecordByKey)
+    (rootState: IRootStateRecord) => rootState.get('chartStreams', emptyChartStreamList),
+    (chartStreamsList) => chartStreamsList.valueSeq().toArray()
   );

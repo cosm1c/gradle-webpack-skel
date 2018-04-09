@@ -1,77 +1,15 @@
 import {AnyAction, Reducer} from 'redux';
-import {ChartOptions} from 'chart.js';
-import {ADD_CHART_STREAM, ChartStreamMap, ChartStreamRecordFactory, emptyChartStreamMap} from './';
+import {ADD_CHART_STREAM, ChartStreamList, DEL_CHART_STREAM, emptyChartStreamList} from './';
 
-const chartOption: ChartOptions = {
-  animation: {
-    duration: 0, // general animation time
-  },
-  hover: {
-    animationDuration: 0, // duration of animations when hovering an item
-  },
-  responsiveAnimationDuration: 0, // animation duration after a resize
-  elements: {
-    line: {
-      tension: 0, // disables bezier curves
-    }
-  },
-  maintainAspectRatio: false,
-  scales: {
-    xAxes: [{
-      type: 'time',
-      scaleLabel: {
-        display: true,
-        labelString: 'DateTime'
-      }
-    }],
-    yAxes: [{
-      scaleLabel: {
-        display: true,
-        labelString: 'value'
-      }
-    }]
-  },
-};
-
-export const chartStreamReducer: Reducer<ChartStreamMap> =
-  (state: ChartStreamMap = emptyChartStreamMap, action: AnyAction): ChartStreamMap => {
+export const chartStreamReducer: Reducer<ChartStreamList> =
+  (state: ChartStreamList = emptyChartStreamList, action: AnyAction): ChartStreamList => {
     switch (action.type) {
       case ADD_CHART_STREAM:
-        const chartId = `c:${Date.now()}`;
-        switch (action.streamURI) {
-          case 'sine':
-          case 'sineSlow':
-          case 'count':
-          case 'countSlow':
-          default:
-            // TODO: parse URIs for arguments to set in chart config
-            return state.set(chartId, ChartStreamRecordFactory({
-              key: chartId,
-              streamURI: action.streamURI,
-              chartConfig: {
+        return state.push(`c:${Date.now()}`);
 
-                type: 'line',
-
-                data: {
-                  datasets: [{
-                    label: action.streamURI,
-                    backgroundColor: 'blue',
-                    borderColor: 'black',
-                    pointRadius: 1.75,
-                    fill: false,
-                    data: [], // ChartPoint[]
-                  }]
-                },
-
-                options: {
-                  ...chartOption,
-                  title: {
-                    text: `Chart.js uri="${action.streamURI}"`
-                  },
-                }
-              }
-            }));
-        }
+      case DEL_CHART_STREAM:
+        const existingIndex = state.indexOf(action.key);
+        return existingIndex >= 0 ? state.delete(existingIndex) : state;
 
       default:
         return state;

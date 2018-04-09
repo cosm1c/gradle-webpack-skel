@@ -23,7 +23,10 @@ object Main extends LazyLogging {
             logger.error("UncaughtException on main thread", e)
         })
 
-        // TODO: log startup banner
+        logger.info(
+            """Application started build.version="{}" build.date="{}" git.version="{}" git.date="{}"""",
+            appConfig.getString("build.version"), appConfig.getString("build.date"),
+            appConfig.getString("git.version"), appConfig.getString("git.date"))
 
         akka.Main.main(Array(classOf[AppSupervisorActor].getName))
     }

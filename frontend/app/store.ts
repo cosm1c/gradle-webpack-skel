@@ -7,7 +7,7 @@ import {combineReducers} from 'redux-immutable';
 import {GlobalErrorAction, globalErrorReducer, IGlobalErrorStateRecord, initialGlobalErrorState} from './globalError';
 import {emptyMonoidStore, MonoidAction, monoidStoreReducer, MonoidStoreRoot} from './monoidstore';
 import {initialWebSocketState, IWebSocketStateRecord, WebSocketAction, websocketStateReducer} from './stream/websocket';
-import {ChartStreamAction, ChartStreamMap, chartStreamReducer, emptyChartStreamMap} from './widgets/chartstream';
+import {ChartStreamAction, ChartStreamList, chartStreamReducer, emptyChartStreamList} from './widgets/chartstream';
 
 export type IRootAction =
   WebSocketAction
@@ -19,14 +19,14 @@ interface IRootState {
   webSocketState: IWebSocketStateRecord;
   store: MonoidStoreRoot;
   globalError: IGlobalErrorStateRecord;
-  chartStreams: ChartStreamMap;
+  chartStreams: ChartStreamList;
 }
 
 const defaultRootState: IRootState = {
   webSocketState: initialWebSocketState,
   store: emptyMonoidStore,
   globalError: initialGlobalErrorState,
-  chartStreams: emptyChartStreamMap,
+  chartStreams: emptyChartStreamList,
 };
 
 export interface IRootStateRecord extends TypedRecord<IRootStateRecord>, IRootState {

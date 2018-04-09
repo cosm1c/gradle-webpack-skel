@@ -27,9 +27,9 @@
     <orderEntry type="library" name="Gradle: com.chuusai:shapeless_2.12:2.3.3" level="project" />
     <orderEntry type="library" name="Gradle: org.typelevel:macro-compat_2.12:1.1.1" level="project" />
     <orderEntry type="library" name="Gradle: org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4" level="project" />
-    <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-http_2.12:10.1.0" level="project" />
-    <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-http-core_2.12:10.1.0" level="project" />
-    <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-parsing_2.12:10.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-http_2.12:10.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-http-core_2.12:10.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-parsing_2.12:10.1.1" level="project" />
     <orderEntry type="library" name="Gradle: io.circe:circe-jawn_2.12:0.9.1" level="project" />
     <orderEntry type="library" name="Gradle: io.circe:circe-core_2.12:0.9.1" level="project" />
     <orderEntry type="library" name="Gradle: io.circe:circe-numbers_2.12:0.9.1" level="project" />
@@ -47,6 +47,7 @@
     <orderEntry type="library" name="Gradle: io.swagger:swagger-core:1.5.18" level="project" />
     <orderEntry type="library" name="Gradle: org.reflections:reflections:0.9.11" level="project" />
     <orderEntry type="library" name="Gradle: com.google.guava:guava:24.0-jre" level="project" />
+    <orderEntry type="library" name="Gradle: net.e175.klaus:solarpositioning:0.0.9" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:jul-to-slf4j:1.7.25" level="project" />
     <orderEntry type="library" name="Gradle: org.reactivestreams:reactive-streams:1.0.2" level="project" />
     <orderEntry type="library" name="Gradle: io.swagger:swagger-models:1.5.18" level="project" />
@@ -63,8 +64,8 @@
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.2.1" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.module:jackson-module-paranamer:2.9.4" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.9.4" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: ch.qos.logback:logback-core:1.2.3" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.9.4" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: ch.qos.logback:logback-core:1.2.3" level="project" />
     <orderEntry type="library" name="Gradle: javax.validation:validation-api:1.1.0.Final" level="project" />
     <orderEntry type="library" name="Gradle: javax.ws.rs:jsr311-api:1.1.1" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.9.4" level="project" />

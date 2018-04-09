@@ -1,11 +1,13 @@
 package com.github.cosm1c.skel.streams
 
-import java.time.ZonedDateTime
+import java.time.{Instant, ZonedDateTime}
+import java.util.GregorianCalendar
 
 import akka.NotUsed
 import akka.stream.ThrottleMode
 import akka.stream.scaladsl.Source
 import com.github.cosm1c.skel.ui.ClientStreams.ChartPoint
+import net.e175.klaus.solarpositioning.{AzimuthZenithAngle, SPA}
 
 import scala.concurrent.duration._
 
@@ -31,5 +33,38 @@ object Streams {
 
     val error: Source[Nothing, NotUsed] =
         Source.failed(new RuntimeException("Example client stream error"))
+
+    def timeSource(start: ZonedDateTime, end: ZonedDateTime, ticks: Int): Source[ZonedDateTime, NotUsed] = {
+        val endSecond = end.toEpochSecond
+        val startSecond = start.toEpochSecond
+        val step = Math.abs(endSecond - startSecond) / ticks
+        Source(Math.min(startSecond, endSecond) to(Math.max(startSecond, endSecond), step))
+            .map(second => ZonedDateTime.ofInstant(Instant.ofEpochSecond(second), start.getZone))
+    }
+
+    def solar(startDate: ZonedDateTime, endDate: ZonedDateTime, ticks: Int): Source[Seq[ChartPoint], NotUsed] =
+        timeSource(startDate, endDate, ticks)
+            .map(date => {
+                // Latitude and longitude is London, UK
+                val azimuthZenithAngle: AzimuthZenithAngle = SPA.calculateSolarPosition(
+                    GregorianCalendar.from(date),
+                    51.5074f, // latitude
+                    0.1278f, // longitude
+                    35f, // elevation
+                    70f // deltaT
+                    // pressure
+                    // temperature
+                )
+
+                Seq(
+                    ChartPoint(date, BigDecimal.apply(azimuthZenithAngle.getAzimuth)),
+                    ChartPoint(date, BigDecimal.apply(azimuthZenithAngle.getZenithAngle))
+                )
+            })
+
+
+    def solarSlow(startDate: ZonedDateTime, endDate: ZonedDateTime, ticks: Int): Source[Seq[ChartPoint], NotUsed] =
+        solar(startDate, endDate, ticks)
+            .throttle(1, 100.milliseconds, 1, ThrottleMode.shaping)
 
 }

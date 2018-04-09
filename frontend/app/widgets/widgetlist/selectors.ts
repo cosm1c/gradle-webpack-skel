@@ -3,7 +3,7 @@ import * as React from 'react';
 import {ReactElement} from 'react';
 import {IRootStateRecord} from '../../store';
 import {JobState, jobStateToWidget, selectJobStates} from '../job';
-import {chartStreamToWidget, IChartStreamRecord, selectChartStreams} from '../chartstream';
+import {chartStreamToWidget, selectChartKeys} from '../chartstream';
 
 export type Widget = {
   itemKey: string;
@@ -12,10 +12,10 @@ export type Widget = {
   element: ReactElement<any>;
 };
 
-const selectChartStreamsWidgetArray: OutputSelector<IRootStateRecord, Widget[], (res1: IChartStreamRecord[]) => Widget[]> =
+const selectChartKeysWidgetArray: OutputSelector<IRootStateRecord, Widget[], (res1: string[]) => Widget[]> =
   createSelector(
-    selectChartStreams,
-    (chartStreamRecordArray) => chartStreamRecordArray.map((chartStreamRecord) => chartStreamToWidget(chartStreamRecord)));
+    selectChartKeys,
+    (chartStreamRecordArray) => chartStreamRecordArray.map(chartStreamToWidget));
 
 const selectJobStatesWidgetArray: OutputSelector<IRootStateRecord, Widget[], (res1: JobState[]) => Widget[]> =
   createSelector(
@@ -24,6 +24,6 @@ const selectJobStatesWidgetArray: OutputSelector<IRootStateRecord, Widget[], (re
 
 export const selectWidgetArray: OutputSelector<IRootStateRecord, Widget[], (res1: Widget[], res2: Widget[]) => Widget[]> =
   createSelector(
-    selectChartStreamsWidgetArray,
+    selectChartKeysWidgetArray,
     selectJobStatesWidgetArray,
     (chartStreamsWidgetArray, jobInfoWidgetArray) => chartStreamsWidgetArray.concat(jobInfoWidgetArray));

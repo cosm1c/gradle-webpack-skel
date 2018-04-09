@@ -19,7 +19,7 @@ export const monoidStoreObserver: Observer<any> = {
   },
 
   complete() {
-    // TODO: resubscribe for websocket reconnect (need to implement the queue in ClientStreams first)
+    // TODO: resubscribe for websocket reconnect
     console.warn('MonoidStoreComplete');
   }
 };
