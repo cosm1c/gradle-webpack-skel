@@ -13,13 +13,16 @@ import com.github.cosm1c.skel.JsonProtocol
 import com.github.cosm1c.skel.streams.Streams
 import com.github.cosm1c.skel.ui.ClientConnectionActor.{AttachSubStream, CancelSubStream, ErrorSubStream}
 import io.circe.parser.parse
+import io.circe.syntax._
 import io.circe.{Json, ParsingFailure}
 
 import scala.concurrent.Future
 
 object ClientStreams {
 
-    final case class ChartPoint(x: ZonedDateTime, y: BigDecimal /*, r: BigDecimal*/)
+    final case class ChartPoint(x: BigDecimal, y: BigDecimal /*, r: BigDecimal*/)
+
+    final case class ChartDateTimePoint(x: ZonedDateTime, y: BigDecimal /*, r: BigDecimal*/)
 
 }
 
@@ -112,8 +115,7 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
                         query.get("ticks")
                             .map(Integer.parseInt)
                             .getOrElse(100)
-                    ).map(_.map(chartPointEncoder.apply))
-                        .map(Json.arr)
+                    ).map(_.asJson)
                 )
 
             case "solarSlow" =>
@@ -126,8 +128,7 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
                         query.get("ticks")
                             .map(Integer.parseInt)
                             .getOrElse(100)
-                    ).map(_.map(chartPointEncoder.apply))
-                        .map(Json.arr)
+                    ).map(_.asJson)
                 )
 
             case "count" =>
@@ -136,7 +137,7 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
                 clientConnectionActor ! AttachSubStream(
                     streamId,
                     Streams.count(start, end)
-                        .map(chartPointEncoder.apply)
+                        .map(_.asJson)
                 )
 
             case "countSlow" =>
@@ -145,7 +146,7 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
                 clientConnectionActor ! AttachSubStream(
                     streamId,
                     Streams.countSlow(start, end)
-                        .map(chartPointEncoder.apply)
+                        .map(_.asJson)
                 )
 
             case "sine" =>
@@ -155,7 +156,7 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
                 clientConnectionActor ! AttachSubStream(
                     streamId,
                     Streams.sine(start, end, step)
-                        .map(chartPointEncoder.apply)
+                        .map(_.asJson)
                 )
 
             case "sineSlow" =>
@@ -165,7 +166,7 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
                 clientConnectionActor ! AttachSubStream(
                     streamId,
                     Streams.sineSlow(start, end, step)
-                        .map(chartPointEncoder.apply)
+                        .map(_.asJson)
                 )
 
             case "error" =>

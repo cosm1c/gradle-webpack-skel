@@ -10,6 +10,8 @@ import store from '../../store';
 import {clientStreams} from '../../main';
 import {Widget} from '../widgetlist';
 import {chartStreamActionCreators, DaySelector} from './';
+import {StartEndSelector} from "./StartEndSelector";
+import {StartEndStepSelector} from "./StartEndStepSelector";
 
 export interface ChartViewProps {
   widgetKey: string;
@@ -43,8 +45,8 @@ export class ChartView extends React.Component<ChartViewProps, State> {
   constructor(props: ChartViewProps) {
     super(props);
     this.chartUpdate$.subscribe(_ignore => this.forceChartUpdate());
-    this.onPickSolarDate = this.onPickSolarDate.bind(this);
-    this.onPickSolarSlowDate = this.onPickSolarSlowDate.bind(this);
+    this.startEndChart = this.startEndChart.bind(this);
+    this.solarDateChart = this.solarDateChart.bind(this);
   }
 
   render() {
@@ -52,6 +54,7 @@ export class ChartView extends React.Component<ChartViewProps, State> {
     const {error, subscription, configReactComponent, title, started, ended} = this.state;
     const componentClass = classNames(className, 'chart-view');
 
+    // TODO: SUpport step in sine graphs
     return (
       <Panel className={componentClass} style={style} bsStyle={this.panelBsStyle()}>
         <Panel.Heading>
@@ -70,11 +73,29 @@ export class ChartView extends React.Component<ChartViewProps, State> {
           {(started === undefined) && (
             <DropdownButton title='Choose Chart' id='dropdown-basic-large'>
               <MenuItem eventKey='1' onSelect={() =>
-                this.displayChartConfig(<DaySelector title='Pick Day'
-                                                     onPickDate={this.onPickSolarDate}/>)}>Solar</MenuItem>
+                this.displayChartConfig(<DaySelector title='Pick Day' onPickDate={(momentDate) =>
+                  this.solarDateChart(false, momentDate)}/>)}>Solar</MenuItem>
               <MenuItem eventKey='2' onSelect={() =>
-                this.displayChartConfig(<DaySelector title='Pick Day'
-                                                     onPickDate={this.onPickSolarSlowDate}/>)}>Solar Slow</MenuItem>
+                this.displayChartConfig(<DaySelector title='Pick Day' onPickDate={(momentDate) =>
+                  this.solarDateChart(true, momentDate)}/>)}>Solar Slow</MenuItem>
+              <MenuItem eventKey='3' onSelect={() =>
+                this.displayChartConfig(<StartEndSelector title='Enter Start and End'
+                                                          initStart={0} initEnd={10} onSubmit={(start, end) =>
+                  this.startEndChart('count', start, end)}/>)}>Count</MenuItem>
+              <MenuItem eventKey='4' onSelect={() =>
+                this.displayChartConfig(<StartEndSelector title='Enter Start and End'
+                                                          initStart={0} initEnd={10} onSubmit={(start, end) =>
+                  this.startEndChart('countSlow', start, end)}/>)}>Count Slow</MenuItem>
+              <MenuItem eventKey='5' onSelect={() =>
+                this.displayChartConfig(<StartEndStepSelector title='Enter Start and End'
+                                                              initStart={0} initEnd={32} onSubmit={(start, end, step) =>
+                  this.startEndStepChart('sine', start, end, step)}/>)}>Sine</MenuItem>
+              <MenuItem eventKey='6' onSelect={() =>
+                this.displayChartConfig(<StartEndStepSelector title='Enter Start and End'
+                                                              initStart={0} initEnd={32} onSubmit={(start, end, step) =>
+                  this.startEndStepChart('sineSlow', start, end, step)}/>)}>Sine Slow</MenuItem>
+              <MenuItem eventKey='7' onSelect={() =>
+                this.configChart('error', 'Error Source', {}, [])}>Error Source</MenuItem>
             </DropdownButton>
           )}
           {(configReactComponent)}
@@ -153,15 +174,83 @@ export class ChartView extends React.Component<ChartViewProps, State> {
     });
   }
 
-  private onPickSolarDate(moment: moment.Moment): void {
-    this.configSolarDate(false, moment);
+  private startEndChart(uriPath: string, start: number, end: number): void {
+    this.configChart(
+      `${uriPath}?start=${start}&end=${end}`,
+      `${uriPath} ${start} to ${end}`,
+      {
+        xAxes: [{
+          type: 'linear',
+          ticks: {
+            min: start,
+            max: end,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'X'
+          }
+        }],
+        yAxes: [
+          {
+            scaleLabel: {
+              display: true,
+              labelString: 'Y'
+            }
+          }
+        ]
+      },
+      [
+        {
+          label: uriPath,
+          backgroundColor: 'blue',
+          borderColor: 'black',
+          pointRadius: 1.75,
+          fill: false,
+          data: [], // ChartPoint[]
+        }
+      ]
+    );
   }
 
-  private onPickSolarSlowDate(moment: moment.Moment): void {
-    this.configSolarDate(true, moment);
+  private startEndStepChart(uriPath: string, start: number, end: number, step: number): void {
+    this.configChart(
+      `${uriPath}?start=${start}&end=${end}&step=${step}`,
+      `${uriPath} ${start} to ${end} step ${step}`,
+      {
+        xAxes: [{
+          type: 'linear',
+          ticks: {
+            min: start,
+            max: end,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'X'
+          }
+        }],
+        yAxes: [
+          {
+            scaleLabel: {
+              display: true,
+              labelString: 'Y'
+            }
+          }
+        ]
+      },
+      [
+        {
+          label: uriPath,
+          backgroundColor: 'blue',
+          borderColor: 'black',
+          pointRadius: 1.75,
+          fill: false,
+          data: [], // ChartPoint[]
+        }
+      ]
+    );
   }
 
-  private configSolarDate(isSlow: boolean, moment: moment.Moment): void {
+  private solarDateChart(isSlow: boolean, moment: moment.Moment): void {
     const startDateISOString = moment.toISOString();
     const endDateISOString = moment.add(1, 'day').toISOString();
     this.configChart(
