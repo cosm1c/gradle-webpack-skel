@@ -7,6 +7,15 @@ import {WebSocketStream} from './websocket';
 
 export class ClientStreams {
 
+  private static readonly DISCONNECTED_STREAM_OBSERVER: Observer<any> = {
+    next: () => {
+    },
+    error: () => {
+    },
+    complete: () => {
+    },
+  };
+
   public readonly connect: () => void;
   public readonly disconnect: () => void;
 
@@ -48,17 +57,16 @@ export class ClientStreams {
 
   subscribeStream(streamURI: string, observer: Observer<any>): Subscription {
     const streamId = this.nextStreamId();
-
     this.webSocketStream.send(streamId, streamURI);
     this.streams.set(streamId, observer);
 
-    const unsubscribeCallback = () => {
+    const subscription = new Subscription(() => {
       this.webSocketStream.send(streamId, null);
-    };
+    });
 
-    const subscription = new Subscription(unsubscribeCallback);
-
-    subscription.add(() => this.streams.delete(streamId));
+    subscription.add(() => {
+      this.streams.set(streamId, ClientStreams.DISCONNECTED_STREAM_OBSERVER);
+    });
 
     return subscription;
   }
@@ -89,6 +97,7 @@ export class ClientStreams {
               if (cmd === null) {
                 if (this.streams.has(streamId)) {
                   this.streams.get(streamId)!.complete();
+                  this.streams.delete(streamId);
                 } else {
                   this.store.dispatch(
                     globalErrorActionCreators.globalError(new Error(`CompleteUnknownStream streamId="${streamId}"`)));
@@ -97,6 +106,7 @@ export class ClientStreams {
               } else if (typeof cmd === 'string') {
                 if (this.streams.has(streamId)) {
                   this.streams.get(streamId)!.error(cmd);
+                  this.streams.delete(streamId);
                 } else {
                   this.store.dispatch(
                     globalErrorActionCreators.globalError(new Error(`ErrorUnknownStream streamId="${streamId}" value=${cmd}`)));
@@ -105,6 +115,7 @@ export class ClientStreams {
               } else {
                 if (this.streams.has(streamId)) {
                   this.streams.get(streamId)!.error(`InvalidStreamCommand streamId="${streamId}" value=${JSON.stringify(cmd)}`);
+                  this.streams.delete(streamId);
                 } else {
                   this.store.dispatch(
                     globalErrorActionCreators.globalError(new Error(`InvalidUnknownStreamCmd streamId="${streamId}" value=${JSON.stringify(cmd)}`)));
