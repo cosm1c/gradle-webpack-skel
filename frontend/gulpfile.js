@@ -24,10 +24,19 @@ gulp.task('package', ['clean', 'test'], function (cb) {
     webpack = require('webpack');
 
   webpack(webpackConfig, function (err, stats) {
-    // see: https://webpack.github.io/docs/node.js-api.html#stats-tostring
-    log("[webpack stats]", stats.toString());
-    if (err) throw err;
-    if (stats.hasErrors()) throw 'Webpack failed to compile';
+    if (err) {
+      console.error(err.stack || err);
+      if (err.details) {
+        console.error(err.details);
+      }
+      return;
+    }
+
+    if (stats) {
+      log("[webpack stats]", stats.toString({colors: true}));
+      if (stats.hasErrors()) throw 'Webpack failed to compile';
+    }
+
     cb();
   });
 });

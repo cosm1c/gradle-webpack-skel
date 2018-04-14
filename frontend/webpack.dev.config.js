@@ -9,6 +9,7 @@ const path = require('path'),
 const ENV = process.env.NODE_ENV = process.env.ENV = 'development';
 
 module.exports = {
+  mode: 'development',
 
   watch: true,
 

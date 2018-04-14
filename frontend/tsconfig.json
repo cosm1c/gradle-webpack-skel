@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES5",
-    "module": "CommonJS",
+    "target": "ES6",
+    "module": "ES6",
     "strict": true,
     "moduleResolution": "node",
     "alwaysStrict": true,
@@ -31,9 +31,7 @@
     "suppressImplicitAnyIndexErrors": true,
     "lib": [
       "dom",
-      "es2015",
-      "es2015.promise",
-      "es2016",
+      "es6",
       "es2017.object"
     ]
   },
@@ -42,6 +40,7 @@
     "gulpfile.js",
     "webpack.dev.config.js",
     "webpack.prd.config.js",
+    "webpack.prd-BACKUP.config.js",
     "dist"
   ]
 }

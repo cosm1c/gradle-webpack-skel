@@ -2,147 +2,112 @@
 
 const path = require('path'),
   webpack = require('webpack'),
-  ExtractTextPlugin = require('extract-text-webpack-plugin'),
+  ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin'),
+  MiniCssExtractPlugin = require('mini-css-extract-plugin'),
   CleanCSSPlugin = require("less-plugin-clean-css"),
+  CleanWebpackPlugin = require('clean-webpack-plugin'),
+  OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin"),
   HtmlWebpackPlugin = require('html-webpack-plugin'),
-  CopyWebpackPlugin = require('copy-webpack-plugin');
-
-const ENV = process.env.NODE_ENV = process.env.ENV = 'production';
-
-const extractLess = new ExtractTextPlugin({
-  filename: "[name].[contenthash].css"
-});
+  CopyWebpackPlugin = require('copy-webpack-plugin'),
+  UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
 
-  bail: true,
+  mode: 'production',
 
   entry: './app/main.tsx',
 
+  // TODO: Code splitting with dll-plugin
+
   output: {
-    filename: '[name].[chunkhash].js',
+    filename: '[chunkhash]-[name].js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: './'
+    publicPath: '/'
   },
 
   module: {
     rules: [
+      // {test: /\.txt$/, use: 'raw-loader'},
       {
-        test: /\.(jpg|png|gif)$/,
-        use: 'file-loader'
-      },
-      {
-        test: /\.(woff|woff2|eot|ttf|svg)$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            limit: 100000
+        test: /\.(png|jpg|gif|woff|woff2|eot|ttf|svg)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              outputPath: '/images'
+            }
           }
-        }
-      },
-      {
-        test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          fallback: "style-loader",
-          use: "css-loader"
-        })
+        ]
       },
       {
         test: /\.less$/,
-        use: extractLess.extract({
-          filename: "[name].[contenthash].css",
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: "css-loader"
-            },
-            {
-              loader: "less-loader",
-              options: {
-                sourceMap: false,
-                strictMath: true,
-                noIeCompat: true,
-                lessPlugins: [
-                  new CleanCSSPlugin({advanced: true})
-                ]
-              }
+        use: [
+          MiniCssExtractPlugin.loader,
+          // {loader: 'style-loader'}, // This breaks build
+          {loader: 'css-loader'},
+          {
+            loader: 'less-loader',
+            options: {
+              sourceMap: false,
+              strictMath: true,
+              noIeCompat: true,
+              lessPlugins: [
+                new CleanCSSPlugin({advanced: true})
+              ]
             }
-          ]
-        })
-      },
-      {
-        test: /\.html$/,
-        loader: 'html-loader'
+          }
+        ]
       },
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              compilerOptions: {
+                sourceMap: false
+              }
+            }
+          }
+        ],
         exclude: /node_modules/
       }
     ]
   },
 
-
   resolve: {
     modules: [__dirname, path.resolve(__dirname, '..', 'node_modules')],
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.css', '.less', '.json']
+    extensions: ['.tsx', '.ts', '.jsx', '.js', '.less', '.css', '.json']
   },
 
-  context: __dirname,
-
-  target: 'web',
-
-  stats: true,
+  optimization: {
+    minimizer: [
+      new OptimizeCSSAssetsPlugin({})
+    ]
+  },
 
   plugins: [
-    new webpack.LoaderOptionsPlugin({
-      minimize: true,
-      debug: false,
-      options: {
-        context: __dirname,
-        htmlLoader: {
-          minimize: true,
-          removeAttributeQuotes: false,
-          caseSensitive: true
-        }
-      }
-    }),
+    new CleanWebpackPlugin(['dist'], {root: path.resolve(__dirname)}),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(ENV),
-      IS_PROD: true
+      IS_PROD: JSON.stringify(true)
     }),
-    new ExtractTextPlugin('[name]-[contenthash].min.css'),
+    new ForkTsCheckerWebpackPlugin({
+      tslint: false, // TODO: use tslint?
+      checkSyntacticErrors: true
+    }),
+    new MiniCssExtractPlugin({
+      filename: "[chunkhash]-[name].css",
+      chunkFilename: "[chunkhash]-[id].css"
+    }),
+    new UglifyJsPlugin({uglifyOptions: {ecma: 6}}),
     new CopyWebpackPlugin([
       {from: 'manifest.json'},
       {from: 'favicon.ico'},
       {from: 'apple-touch-icon.png'},
       {from: 'images', to: 'images'}
     ]),
-    new webpack.optimize.UglifyJsPlugin({
-      beautify: false,
-      output: {
-        comments: false
-      },
-      mangle: {
-        screw_ie8: true
-      },
-      compress: {
-        screw_ie8: true,
-        warnings: false,
-        conditionals: true,
-        unused: true,
-        comparisons: true,
-        sequences: true,
-        dead_code: true,
-        evaluate: true,
-        if_return: true,
-        join_vars: true,
-        negate_iife: false // we need this for lazy v8
-      }
-    }),
     new HtmlWebpackPlugin({
       template: 'index.html',
-      chunksSortMode: 'dependency',
       inject: true,
       hash: true,
       xhtml: true,
@@ -157,14 +122,5 @@ module.exports = {
         sortClassName: true
       }
     })
-  ],
-
-  node: {
-    global: true,
-    crypto: 'empty',
-    process: false,
-    module: false,
-    clearImmediate: false,
-    setImmediate: false
-  }
+  ]
 };
