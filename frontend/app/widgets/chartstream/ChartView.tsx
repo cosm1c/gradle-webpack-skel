@@ -54,7 +54,6 @@ export class ChartView extends React.Component<ChartViewProps, State> {
     const {error, subscription, configReactComponent, title, started, ended} = this.state;
     const componentClass = classNames(className, 'chart-view');
 
-    // TODO: SUpport step in sine graphs
     return (
       <Panel className={componentClass} style={style} bsStyle={this.panelBsStyle()}>
         <Panel.Heading>

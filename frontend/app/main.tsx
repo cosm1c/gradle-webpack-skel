@@ -32,7 +32,6 @@ export function calcWsUrl(): string {
   return window.location.protocol === 'https:' ? `wss://${window.location.host}:8080/ws` : `ws://${window.location.host}/ws`;
 }
 
-// TODO: MonoidStore should receive MONOID_CLEAR every WebSocket reconnect
 export const clientStreams =
   new ClientStreams(
     calcWsUrl(),

@@ -4,7 +4,8 @@ const path = require('path'),
   webpack = require('webpack'),
   ExtractTextPlugin = require('extract-text-webpack-plugin'),
   CleanCSSPlugin = require("less-plugin-clean-css"),
-  HtmlWebpackPlugin = require('html-webpack-plugin');
+  HtmlWebpackPlugin = require('html-webpack-plugin'),
+  CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const ENV = process.env.NODE_ENV = process.env.ENV = 'production';
 
@@ -111,6 +112,12 @@ module.exports = {
       IS_PROD: true
     }),
     new ExtractTextPlugin('[name]-[contenthash].min.css'),
+    new CopyWebpackPlugin([
+      {from: 'manifest.json'},
+      {from: 'favicon.ico'},
+      {from: 'apple-touch-icon.png'},
+      {from: 'images', to: 'images'}
+    ]),
     new webpack.optimize.UglifyJsPlugin({
       beautify: false,
       output: {

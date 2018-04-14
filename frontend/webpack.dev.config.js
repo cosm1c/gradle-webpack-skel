@@ -3,7 +3,8 @@
 const path = require('path'),
   webpack = require('webpack'),
   HtmlWebpackPlugin = require('html-webpack-plugin'),
-  ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+  ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin'),
+  CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const ENV = process.env.NODE_ENV = process.env.ENV = 'development';
 
@@ -157,6 +158,12 @@ module.exports = {
       IS_PROD: false
     }),
     new ForkTsCheckerWebpackPlugin({checkSyntacticErrors: true}),
+    new CopyWebpackPlugin([
+      {from: 'manifest.json'},
+      {from: 'favicon.ico'},
+      {from: 'apple-touch-icon.png'},
+      {from: 'images', to: 'images'}
+    ]),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NamedModulesPlugin(),
     new HtmlWebpackPlugin({
