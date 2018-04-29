@@ -45,8 +45,8 @@ hs_err_pid*
 
 ## JetBrains.gitignore -- https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
 .idea/
-.iws
-.iml
+*.iws
+*.iml
 out/
 .idea_modules/
 atlassian-ide-plugin.xml
