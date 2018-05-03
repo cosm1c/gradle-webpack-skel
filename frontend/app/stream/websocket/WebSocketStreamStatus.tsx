@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Label} from 'react-bootstrap';
 import * as classNames from 'classnames';
-import {connectionStateDisplay, ConnectionStateEnum} from './WebSocketStateRecord';
+import {ConnectionStateEnum} from './WebSocketStateRecord';
 
 interface WebSocketStreamStatusProps {
   connectionState: ConnectionStateEnum;
@@ -22,7 +22,7 @@ function connectionStateLabel(streamState: ConnectionStateEnum) {
     case ConnectionStateEnum.OFFLINE:
       return (<Label bsStyle='default'>Offline</Label>);
     default:
-      return (<Label bsStyle='warning'>Unknown {connectionStateDisplay(streamState)}</Label>);
+      return (<Label bsStyle='warning'>Unknown</Label>);
   }
 }
 

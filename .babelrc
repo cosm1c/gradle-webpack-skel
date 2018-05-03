@@ -1,0 +1,30 @@
+{
+    "comments": false,
+    "minified": true,
+    "env": {
+        "production": {
+            "presets": [
+                "minify"
+            ]
+        }
+    },
+    "presets": [
+        "react",
+        [
+            "env",
+            {
+                "targets": {
+                    "browsers": [
+                        "last 2 versions",
+                        "> 1%"
+                    ]
+                },
+                "modules": false
+            }
+        ]
+    ],
+    "plugins": [
+        //"react-loadable/babel",
+        "syntax-dynamic-import"
+    ]
+}

@@ -158,6 +158,7 @@ module.exports = {
       'process.env.NODE_ENV': JSON.stringify(ENV),
       IS_PROD: false
     }),
+
     new ForkTsCheckerWebpackPlugin({checkSyntacticErrors: true}),
     new CopyWebpackPlugin([
       {from: 'manifest.json'},
@@ -166,7 +167,7 @@ module.exports = {
       {from: 'images', to: 'images'}
     ]),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NamedModulesPlugin(),
+    //new webpack.NamedModulesPlugin(),
     new HtmlWebpackPlugin({
       template: 'index.html',
       chunksSortMode: 'dependency',

@@ -1,4 +1,5 @@
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import 'rxjs/add/operator/mergeMap';
 import {applyMiddleware, createStore, MiddlewareAPI, Store} from 'redux';
 import {composeWithDevTools} from 'redux-devtools-extension';
 import {ActionsObservable, combineEpics, createEpicMiddleware, Epic} from 'redux-observable';

@@ -1,9 +1,11 @@
 import {connect} from 'react-redux';
 import {IRootStateRecord} from '../../store';
-import {WidgetList, selectWidgetArray} from './index';
+import {selectWidgetArray, WidgetList} from './index';
 
 const mapStateToProps = (state: IRootStateRecord) => ({
   widgets: selectWidgetArray(state),
 });
 
-export const WidgetListConnected = connect(mapStateToProps)(WidgetList);
+const WidgetListConnected = connect(mapStateToProps)(WidgetList);
+
+export default WidgetListConnected;

@@ -20,7 +20,7 @@ const selectChartKeysWidgetArray: OutputSelector<IRootStateRecord, Widget[], (re
 const selectJobStatesWidgetArray: OutputSelector<IRootStateRecord, Widget[], (res1: JobState[]) => Widget[]> =
   createSelector(
     selectJobStates,
-    (jobsStateArray) => jobsStateArray.map((jobState) => jobStateToWidget(jobState)));
+    (jobsStateArray) => jobsStateArray.map(jobStateToWidget));
 
 export const selectWidgetArray: OutputSelector<IRootStateRecord, Widget[], (res1: Widget[], res2: Widget[]) => Widget[]> =
   createSelector(

@@ -1,15 +1,11 @@
 import {makeTypedFactory, TypedRecord} from 'typed-immutable-record';
 
-export enum ConnectionStateEnum {
+export const enum ConnectionStateEnum {
   DISCONNECTED,
   CONNECTING,
   CONNECTED,
   DISCONNECTING,
   OFFLINE,
-}
-
-export function connectionStateDisplay(ConnectionStateEnum: ConnectionStateEnum) {
-  return ConnectionStateEnum[ConnectionStateEnum];
 }
 
 interface IWebSocketState {

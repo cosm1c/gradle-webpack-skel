@@ -6,12 +6,11 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import {Button, DropdownButton, Label, MenuItem, Panel} from 'react-bootstrap';
 import {Chart, ChartDataSets, ChartScales} from 'chart.js';
-import store from '../../store';
-import {clientStreams} from '../../main';
+import app from '../../app';
 import {Widget} from '../widgetlist';
 import {chartStreamActionCreators, DaySelector} from './';
-import {StartEndSelector} from "./StartEndSelector";
-import {StartEndStepSelector} from "./StartEndStepSelector";
+import {StartEndSelector} from './StartEndSelector';
+import {StartEndStepSelector} from './StartEndStepSelector';
 
 export interface ChartViewProps {
   widgetKey: string;
@@ -45,6 +44,7 @@ export class ChartView extends React.Component<ChartViewProps, State> {
   constructor(props: ChartViewProps) {
     super(props);
     this.chartUpdate$.subscribe(_ignore => this.forceChartUpdate());
+    this.configChart = this.configChart.bind(this);
     this.startEndChart = this.startEndChart.bind(this);
     this.solarDateChart = this.solarDateChart.bind(this);
   }
@@ -57,7 +57,7 @@ export class ChartView extends React.Component<ChartViewProps, State> {
     return (
       <Panel className={componentClass} style={style} bsStyle={this.panelBsStyle()}>
         <Panel.Heading>
-          <a onClick={() => store.dispatch(chartStreamActionCreators.delChartStream(widgetKey))}
+          <a onClick={() => app.store.dispatch(chartStreamActionCreators.delChartStream(widgetKey))}
              className='close align-text-top' href='#'>&times;</a>
           <Button disabled={subscription === undefined} className='pull-right clearfix' bsStyle='warning'
                   bsSize='xsmall' onClick={this.cancelStream}>Cancel Stream</Button>
@@ -87,12 +87,15 @@ export class ChartView extends React.Component<ChartViewProps, State> {
                   this.startEndChart('countSlow', start, end)}/>)}>Count Slow</MenuItem>
               <MenuItem eventKey='5' onSelect={() =>
                 this.displayChartConfig(<StartEndStepSelector title='Enter Start and End'
-                                                              initStart={0} initEnd={32} onSubmit={(start, end, step) =>
-                  this.startEndStepChart('sine', start, end, step)}/>)}>Sine</MenuItem>
+                                                              initStart={0} initEnd={32}
+                                                              onSubmit={(start, end, step) =>
+                                                                this.startEndStepChart('sine', start, end, step)}/>)}>Sine</MenuItem>
               <MenuItem eventKey='6' onSelect={() =>
                 this.displayChartConfig(<StartEndStepSelector title='Enter Start and End'
-                                                              initStart={0} initEnd={32} onSubmit={(start, end, step) =>
-                  this.startEndStepChart('sineSlow', start, end, step)}/>)}>Sine Slow</MenuItem>
+                                                              initStart={0} initEnd={32}
+                                                              onSubmit={(start, end, step) =>
+                                                                this.startEndStepChart('sineSlow', start, end, step)}/>)}>Sine
+                Slow</MenuItem>
               <MenuItem eventKey='7' onSelect={() =>
                 this.configChart('error', 'Error Source', {}, [])}>Error Source</MenuItem>
             </DropdownButton>
@@ -139,12 +142,8 @@ export class ChartView extends React.Component<ChartViewProps, State> {
       }
     });
 
-    this.setState({
-      configReactComponent: undefined,
-
-      title,
-
-      subscription: clientStreams.subscribeStream(streamUri, {
+    const subscription: Subscription = app.clientStreams
+      .subscribeStream(streamUri, {
         next: (chartPoints: Chart.ChartPoint[]) => {
           // Support array of chart points rather than send one point at a time
           // console.debug('ChartView NEXT:', chartPoint);
@@ -167,8 +166,12 @@ export class ChartView extends React.Component<ChartViewProps, State> {
           this.cancelStream();
           this.forceChartUpdate();
         }
-      }),
+      });
 
+    this.setState({
+      configReactComponent: undefined,
+      title,
+      subscription,
       started: window.performance.now()
     });
   }
@@ -312,7 +315,7 @@ export class ChartView extends React.Component<ChartViewProps, State> {
   };
 
   componentWillUnmount() {
-    console.debug('ChartStream componentWillUnmount', this.props.widgetKey);
+    console.debug('unmounting ChartStream', this.props.widgetKey);
     this.cancelStream();
     if (this.chart !== undefined) {
       this.chart.destroy();

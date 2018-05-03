@@ -13,8 +13,6 @@ import scala.concurrent.duration._
 
 object Streams {
 
-    private val startTime: ZonedDateTime = ZonedDateTime.now()
-
     def count(start: Int, end: Int): Source[Seq[ChartPoint], NotUsed] =
         Source(start to end)
             .map(BigDecimal.apply)

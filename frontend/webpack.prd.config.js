@@ -2,27 +2,27 @@
 
 const path = require('path'),
   webpack = require('webpack'),
-  ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin'),
-  MiniCssExtractPlugin = require('mini-css-extract-plugin'),
-  CleanCSSPlugin = require("less-plugin-clean-css"),
-  CleanWebpackPlugin = require('clean-webpack-plugin'),
-  OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin"),
-  HtmlWebpackPlugin = require('html-webpack-plugin'),
+  // BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin,
   CopyWebpackPlugin = require('copy-webpack-plugin'),
-  UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+  MiniCssExtractPlugin = require("mini-css-extract-plugin"),
+  OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin'),
+  MinifyPlugin = require('babel-minify-webpack-plugin'),
+  HtmlWebpackPlugin = require('html-webpack-plugin'),
+  CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
 
   mode: 'production',
 
-  entry: './app/main.tsx',
+  devtool: false,
 
-  // TODO: Code splitting with dll-plugin
+  entry: ['./app/main.tsx', './app/main.less'],
 
   output: {
     filename: '[chunkhash]-[name].js',
-    path: path.resolve(__dirname, 'dist'),
-    publicPath: '/'
+    chunkFilename: '[chunkhash]-[name].chunk.js',
+    path: path.resolve(__dirname, 'dist')/*,
+    publicPath: '/'*/
   },
 
   module: {
@@ -34,7 +34,7 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              outputPath: '/images'
+              outputPath: 'images'
             }
           }
         ]
@@ -43,73 +43,64 @@ module.exports = {
         test: /\.less$/,
         use: [
           MiniCssExtractPlugin.loader,
-          // {loader: 'style-loader'}, // This breaks build
           {loader: 'css-loader'},
           {
             loader: 'less-loader',
             options: {
               sourceMap: false,
               strictMath: true,
-              noIeCompat: true,
-              lessPlugins: [
-                new CleanCSSPlugin({advanced: true})
-              ]
+              noIeCompat: true
             }
           }
         ]
       },
       {
         test: /\.tsx?$/,
+        exclude: /node_modules/,
         use: [
-          {
-            loader: 'ts-loader',
-            options: {
-              compilerOptions: {
-                sourceMap: false
-              }
-            }
-          }
-        ],
-        exclude: /node_modules/
+          {loader: 'babel-loader'},
+          {loader: 'ts-loader'}
+        ]
       }
     ]
   },
 
   resolve: {
     modules: [__dirname, path.resolve(__dirname, '..', 'node_modules')],
-    extensions: ['.tsx', '.ts', '.jsx', '.js', '.less', '.css', '.json']
+    extensions: ['.css', '.less', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
 
   optimization: {
-    minimizer: [
-      new OptimizeCSSAssetsPlugin({})
-    ]
+    minimize: false/*,
+    minimizer: []*/
   },
 
   plugins: [
+    // new BundleAnalyzerPlugin(),
     new CleanWebpackPlugin(['dist'], {root: path.resolve(__dirname)}),
     new webpack.DefinePlugin({
-      IS_PROD: JSON.stringify(true)
+      'process.env.NODE_ENV': JSON.stringify('production')
     }),
-    new ForkTsCheckerWebpackPlugin({
-      tslint: false, // TODO: use tslint?
-      checkSyntacticErrors: true
-    }),
-    new MiniCssExtractPlugin({
-      filename: "[chunkhash]-[name].css",
-      chunkFilename: "[chunkhash]-[id].css"
-    }),
-    new UglifyJsPlugin({uglifyOptions: {ecma: 6}}),
     new CopyWebpackPlugin([
       {from: 'manifest.json'},
       {from: 'favicon.ico'},
       {from: 'apple-touch-icon.png'},
       {from: 'images', to: 'images'}
     ]),
+    new MiniCssExtractPlugin({
+      filename: '[chunkhash]-[name].css',
+      chunkFilename: '[chunkhash]-[name].chunk.css'
+    }),
+    new OptimizeCssAssetsPlugin({
+      cssProcessorOptions: {discardComments: {removeAll: true}}
+    }),
+    new MinifyPlugin({
+      mangle: {topLevel: true}
+    }),
     new HtmlWebpackPlugin({
       template: 'index.html',
       inject: true,
-      hash: true,
+      //hash: true,
       xhtml: true,
       minify: {
         collapseInlineTagWhitespace: false,
