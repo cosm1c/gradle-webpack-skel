@@ -23,8 +23,8 @@ object Streams {
             .throttle(1, 1.second, 1, ThrottleMode.shaping)
 
     def sine(start: Double, end: Double, step: Double): Source[Seq[ChartPoint], NotUsed] =
-        Source(start to(end, step))
-            .map(i => Seq(ChartPoint(BigDecimal.apply(i), BigDecimal.apply(Math.sin(i)))))
+        Source(BigDecimal(start) to(BigDecimal(end), step))
+            .map(i => Seq(ChartPoint(i, BigDecimal.apply(Math.sin(i.doubleValue)))))
 
     def sineSlow(start: Double, end: Double, step: Double): Source[Seq[ChartPoint], NotUsed] =
         sine(start, end, step)

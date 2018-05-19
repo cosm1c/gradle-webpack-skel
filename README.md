@@ -2,13 +2,16 @@
 
 Simple starter for a backend and frontend application with updates sent over WebSocket.
 
-TODO:
+## TODO
+ * Fix ChartJS label issue: Uncaught TypeError: Cannot read property 'skip' of undefined -- https://github.com/chartjs/Chart.js/issues/3753 https://github.com/jtblin/angular-chart.js/issues/644
+ * Static Code Analysis
+ * Running Dummy Jobs
+ * CandleStick Chart
+ * RequestMetrics: activeRequests using BidiFlow, request duration using custom directive 
  * Use static html for initial render with no-JS, dynamically imported React
  * Use react-loadable
- * Upgrade to redux@4 and rxjs@6
  * checkbox to enable reconnect - off by default
  * restart streams on WebSocket reconnect
- * Fix ChartJS label issue: Uncaught TypeError: Cannot read property 'skip' of undefined -- https://github.com/chartjs/Chart.js/issues/3753 https://github.com/jtblin/angular-chart.js/issues/644
 
 ## Release Command
 Self executing Jar will be at `webservice/build/libs/webservice-<version>-all.jar`

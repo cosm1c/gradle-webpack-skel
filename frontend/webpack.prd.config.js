@@ -6,7 +6,7 @@ const path = require('path'),
   CopyWebpackPlugin = require('copy-webpack-plugin'),
   MiniCssExtractPlugin = require("mini-css-extract-plugin"),
   OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin'),
-  MinifyPlugin = require('babel-minify-webpack-plugin'),
+  BabelMinifyPlugin = require('babel-minify-webpack-plugin'),
   HtmlWebpackPlugin = require('html-webpack-plugin'),
   CleanWebpackPlugin = require('clean-webpack-plugin');
 
@@ -15,6 +15,8 @@ module.exports = {
   mode: 'production',
 
   devtool: false,
+
+  context: __dirname,
 
   entry: ['./app/main.tsx', './app/main.less'],
 
@@ -72,7 +74,27 @@ module.exports = {
 
   optimization: {
     minimize: false/*,
-    minimizer: []*/
+    minimizer: []*/,
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "vendors",
+          priority: -10,
+          chunks: "all"
+        },
+        app: {
+          test: /[\\/]app[\\/]/,
+          name: "app",
+          priority: -15,
+          chunks: "all"
+        },
+        default: {
+          priority: -20,
+          reuseExistingChunk: true
+        }
+      }
+    }
   },
 
   plugins: [
@@ -94,7 +116,7 @@ module.exports = {
     new OptimizeCssAssetsPlugin({
       cssProcessorOptions: {discardComments: {removeAll: true}}
     }),
-    new MinifyPlugin({
+    new BabelMinifyPlugin({
       mangle: {topLevel: true}
     }),
     new HtmlWebpackPlugin({

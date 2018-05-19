@@ -1,6 +1,6 @@
-import {MonoidAction, monoidActionCreators} from './actions';
+import {MonoidStoreAction, monoidStoreActionCreators} from './actions';
 
-export function jsonToMonoidActions(json: any): MonoidAction {
+export function jsonToMonoidActions(json: any): MonoidStoreAction {
   let removes: string[][] = [];
 
   function traverseObject(path: string[], obj: any) {
@@ -19,5 +19,5 @@ export function jsonToMonoidActions(json: any): MonoidAction {
 
   traverseObject([], json);
 
-  return monoidActionCreators.monoidApply(removes, json);
+  return monoidStoreActionCreators.monoidStoreApply(removes, json);
 }

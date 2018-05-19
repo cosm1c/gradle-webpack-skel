@@ -2,6 +2,7 @@ package com.github.cosm1c.skel
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import ch.megard.akka.http.cors.scaladsl.CorsDirectives
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import com.github.cosm1c.skel.health.HealthRestService
 import com.github.cosm1c.skel.job.JobRestService
@@ -14,13 +15,15 @@ class HttpRoutes(uiRoutes: UiRoutes,
                  healthRestService: HealthRestService) {
 
     final val route: Route =
-        decodeRequest {
-            encodeResponse {
-                cors() {
-                    uiRoutes.route ~
-                        jobRestService.route ~
-                        healthRestService.route ~
-                        swaggerDocService.routes
+        handleRejections(CorsDirectives.corsRejectionHandler) {
+            cors() {
+                decodeRequest {
+                    encodeResponse {
+                        uiRoutes.route ~
+                            jobRestService.route ~
+                            healthRestService.route ~
+                            swaggerDocService.routes
+                    }
                 }
             }
         }

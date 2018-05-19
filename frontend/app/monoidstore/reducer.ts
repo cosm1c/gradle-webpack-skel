@@ -1,6 +1,6 @@
 import {Map} from 'immutable';
 import {AnyAction, Reducer} from 'redux';
-import {MONOID_APPLY, MONOID_CLEAR, MonoidStoreRoot} from './';
+import {MONOID_STORE_APPLY, MONOID_STORE_CLEAR} from './actions';
 
 // streamId -> data
 export type MonoidStoreRoot = Map<string, any>;
@@ -15,10 +15,10 @@ function applyMonoidAction(state: MonoidStoreRoot, removePaths: string[][], upse
 export const monoidStoreReducer: Reducer<MonoidStoreRoot> =
   (state: MonoidStoreRoot = emptyMonoidStore, action: AnyAction): MonoidStoreRoot => {
     switch (action.type) {
-      case MONOID_APPLY:
+      case MONOID_STORE_APPLY:
         return applyMonoidAction(state, action.removePaths, action.upsert);
 
-      case MONOID_CLEAR:
+      case MONOID_STORE_CLEAR:
         return state.clear();
 
       default:

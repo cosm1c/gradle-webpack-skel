@@ -2,11 +2,6 @@ apply plugin: 'idea'
 
 project.buildDir = 'dist'
 
-task clean(type: Exec) {
-    environment PATH: npmPath
-    commandLine = [npmCommand, 'run', 'clean']
-}
-
 task runDevServer(type: Exec) {
     environment PATH: npmPath
     commandLine = [npmCommand, 'run', 'dev-server']
@@ -20,9 +15,4 @@ task test(type: Exec) {
 task buildPackage(type: Exec) {
     environment PATH: npmPath
     commandLine = [npmCommand, 'run', 'package']
-}
-
-task ciPackage(type: Exec) {
-    environment PATH: npmPath
-    commandLine = [npmCommand, 'run', 'ci-package']
 }

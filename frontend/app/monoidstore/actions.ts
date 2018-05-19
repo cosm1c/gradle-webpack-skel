@@ -1,19 +1,19 @@
-export const MONOID_CLEAR = 'MONOID_CLEAR';
-export const MONOID_APPLY = 'MONOID_APPLY';
+export const MONOID_STORE_CLEAR = 'MONOID_STORE_CLEAR';
+export const MONOID_STORE_APPLY = 'MONOID_STORE_APPLY';
 
-export type MonoidActions = {
-  MONOID_CLEAR: { type: typeof MONOID_CLEAR },
-  MONOID_APPLY: { type: typeof MONOID_APPLY, removePaths: string[][], upsert: any },
+export type MonoidStoreActions = {
+  MONOID_CLEAR: { type: typeof MONOID_STORE_CLEAR },
+  MONOID_APPLY: { type: typeof MONOID_STORE_APPLY, removePaths: string[][], upsert: any },
 };
 
-export type MonoidAction = MonoidActions[keyof MonoidActions];
+export type MonoidStoreAction = MonoidStoreActions[keyof MonoidStoreActions];
 
-export const monoidActionCreators = {
-  monoidClear: () => ({
-    type: MONOID_CLEAR as typeof MONOID_CLEAR,
+export const monoidStoreActionCreators = {
+  monoidStoreClear: () => ({
+    type: MONOID_STORE_CLEAR as typeof MONOID_STORE_CLEAR,
   }),
-  monoidApply: (removePaths: string[][], upsert: any) => ({
-    type: MONOID_APPLY as typeof MONOID_APPLY,
+  monoidStoreApply: (removePaths: string[][], upsert: any) => ({
+    type: MONOID_STORE_APPLY as typeof MONOID_STORE_APPLY,
     removePaths,
     upsert,
   }),

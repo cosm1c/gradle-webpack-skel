@@ -16,6 +16,7 @@
                 "targets": {
                     "browsers": [
                         "last 2 versions",
+                        "ie >= 11",
                         "> 1%"
                     ]
                 },
@@ -24,7 +25,8 @@
         ]
     ],
     "plugins": [
-        //"react-loadable/babel",
-        "syntax-dynamic-import"
+        "transform-class-properties",
+        "syntax-dynamic-import",
+        "react-loadable/babel"
     ]
 }

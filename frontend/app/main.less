@@ -1,4 +1,4 @@
-@import '~bootstrap/less/bootstrap';
+@import '~bootstrap/dist/css/bootstrap.min.css';
 @import './style/react-yearly-calendar';
 
 html, body, #root, .root-container {
@@ -15,10 +15,6 @@ html, body, #root, .root-container {
   flex-direction: column;
 }
 
-.navbar-row {
-  flex: 0 0 auto;
-}
-
 .main-container {
   flex: 1 1 auto;
   position: relative;
@@ -27,14 +23,6 @@ html, body, #root, .root-container {
 
   display: flex;
   flex-direction: column;
-
-  .widget-list {
-    flex: 1 1 auto;
-  }
-
-  .widget-list, .chart-view, .job-view {
-    margin-bottom: 0;
-  }
 }
 
 .chartjs-container {
@@ -42,6 +30,7 @@ html, body, #root, .root-container {
   height: 20rem;
   width: 100%;
 }
+
 
 .footer {
   .alert {

@@ -1,5 +1,6 @@
 package com.github.cosm1c.skel
 
+import java.net.InetAddress
 import java.time.Clock
 
 import akka.actor.{Actor, ActorLogging, ActorSystem}
@@ -22,9 +23,10 @@ class AppSupervisorActor extends Actor with ActorLogging {
     private implicit final val clock: Clock = Clock.systemUTC()
 
     private val httpPort = Main.appConfig.getInt("app.httpPort")
+    private val wsUrl = s"ws://${InetAddress.getLocalHost.getCanonicalHostName}:$httpPort/ws"
 
     private val uiStreams = new UiWebSocketFlow()(materializer, context, log)
-    private val uiRoutes = new UiRoutes(uiStreams)(context.dispatcher, materializer, log)
+    private val uiRoutes = new UiRoutes(uiStreams, wsUrl)(context.dispatcher, materializer, log)
     private val jobManagerActor = context.actorOf(JobManagerActor.props(uiStreams), "JobManagerActor")
     private val jobRestService = new JobRestService(jobManagerActor)
     private val swaggerDocService = new SwaggerDocService(Main.appConfig.getString("build.version"), "/")

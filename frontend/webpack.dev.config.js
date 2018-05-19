@@ -3,7 +3,6 @@
 const path = require('path'),
   webpack = require('webpack'),
   HtmlWebpackPlugin = require('html-webpack-plugin'),
-  ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin'),
   CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const ENV = process.env.NODE_ENV = process.env.ENV = 'development';
@@ -13,9 +12,7 @@ module.exports = {
 
   watch: true,
 
-  entry: {
-    app: './app/main.tsx'
-  },
+  entry: ['./app/main.tsx', './app/main.less'],
 
   /*
     entry: [
@@ -98,19 +95,7 @@ module.exports = {
         test: /\.tsx?$/,
         exclude: /node_modules/,
         use: [
-          {loader: 'cache-loader'},
-          {
-            loader: 'thread-loader',
-            options: {
-              workers: require('os').cpus().length - 1
-            }
-          },
-          {
-            loader: 'ts-loader',
-            options: {
-              happyPackMode: true
-            }
-          }
+          {loader: 'ts-loader'}
         ]
       }
     ]
@@ -155,11 +140,9 @@ module.exports = {
       }
     }),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(ENV),
-      IS_PROD: false
+      'process.env.NODE_ENV': JSON.stringify(ENV)
     }),
 
-    new ForkTsCheckerWebpackPlugin({checkSyntacticErrors: true}),
     new CopyWebpackPlugin([
       {from: 'manifest.json'},
       {from: 'favicon.ico'},
@@ -174,14 +157,5 @@ module.exports = {
       inject: true,
       xhtml: true
     })
-  ],
-
-  node: {
-    global: true,
-    crypto: 'empty',
-    process: false,
-    module: false,
-    clearImmediate: false,
-    setImmediate: false
-  }
+  ]
 };

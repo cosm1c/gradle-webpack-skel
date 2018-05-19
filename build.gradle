@@ -12,7 +12,7 @@ allprojects {
 
     ext {
         scalaBinaryVersion = '2.12'
-        scalaPatchVersion = '4'
+        scalaPatchVersion = '6'
         buildTime = DateTimeFormatter.ISO_ZONED_DATE_TIME.format(ZonedDateTime.now())
 
         if (!project.hasProperty('npmCommand')) {

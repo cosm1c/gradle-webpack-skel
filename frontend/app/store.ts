@@ -1,59 +1,75 @@
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/mergeMap';
-import {applyMiddleware, createStore, MiddlewareAPI, Store} from 'redux';
-import {composeWithDevTools} from 'redux-devtools-extension';
 import {ActionsObservable, combineEpics, createEpicMiddleware, Epic} from 'redux-observable';
 import {makeTypedFactory, TypedRecord} from 'typed-immutable-record';
+import {ConnectionAction} from './navbar/connection/actions';
+import {IConnectionStateRecord, initialConnectionState} from './navbar/connection/ConnectionStateRecord';
+import {MonoidStoreAction} from './monoidstore/actions';
+import {emptyMonoidStore, monoidStoreReducer, MonoidStoreRoot} from './monoidstore/reducer';
+import {GlobalAlertAction} from './globalAlert/actions';
+import {IGlobalAlertStateRecord, initialGlobalAlertState} from './globalAlert/GlobalAlertStateRecord';
+import {ChartStreamAction, ChartStreamList, chartStreamReducer, emptyChartStreamList} from './tabs/chartstream';
 import {combineReducers} from 'redux-immutable';
-import {GlobalErrorAction, globalErrorReducer, IGlobalErrorStateRecord, initialGlobalErrorState} from './globalError';
-import {emptyMonoidStore, MonoidAction, monoidStoreReducer, MonoidStoreRoot} from './monoidstore';
-import {initialWebSocketState, IWebSocketStateRecord, WebSocketAction, websocketStateReducer} from './stream/websocket';
-import {ChartStreamAction, ChartStreamList, chartStreamReducer, emptyChartStreamList} from './widgets/chartstream';
+import {globalAlertReducer} from './globalAlert/reducer';
+import {connectionStateReducer} from './navbar/connection/reducer';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {applyMiddleware, createStore, MiddlewareAPI, Reducer, Store} from 'redux';
+import {composeWithDevTools} from 'redux-devtools-extension';
+import {IRootAction, IRootState, IRootStateRecord, RootEpic} from './store';
 
 export type IRootAction =
-  WebSocketAction
-  | MonoidAction
-  | ChartStreamAction
-  | GlobalErrorAction;
+  GlobalAlertAction
+  | ConnectionAction
+  | MonoidStoreAction
+  | ChartStreamAction;
 
-interface IRootState {
-  webSocketState: IWebSocketStateRecord;
+export interface IRootState {
+  globalAlert: IGlobalAlertStateRecord;
+  connectionState: IConnectionStateRecord;
   store: MonoidStoreRoot;
-  globalError: IGlobalErrorStateRecord;
   chartStreams: ChartStreamList;
 }
 
-const defaultRootState: IRootState = {
-  webSocketState: initialWebSocketState,
-  store: emptyMonoidStore,
-  globalError: initialGlobalErrorState,
-  chartStreams: emptyChartStreamList,
-};
-
 export interface IRootStateRecord extends TypedRecord<IRootStateRecord>, IRootState {
 }
+
+export type RootEpic = Epic<IRootAction, IRootStateRecord>;
+
+const defaultRootState: IRootState = {
+  globalAlert: initialGlobalAlertState,
+  connectionState: initialConnectionState,
+  store: emptyMonoidStore,
+  chartStreams: emptyChartStreamList,
+};
 
 const InitialStateFactory = makeTypedFactory<IRootState, IRootStateRecord>(defaultRootState);
 
 const initialState = InitialStateFactory(defaultRootState);
 
-const rootReducer = combineReducers<IRootStateRecord>(
+const rootReducer: Reducer<IRootStateRecord> = combineReducers<IRootStateRecord>(
   {
-    webSocketState: websocketStateReducer,
+    globalAlert: globalAlertReducer,
+    connectionState: connectionStateReducer,
     store: monoidStoreReducer,
-    globalError: globalErrorReducer,
     chartStreams: chartStreamReducer,
   }
   // do we need to provide getDefaultState here?
 );
 
-export type RootEpic = Epic<IRootAction, IRootStateRecord>;
-
 export const rootEpic$: BehaviorSubject<RootEpic> = new BehaviorSubject(combineEpics(
   // Add epics to start on page load here
 ));
 
-export const rootEpic: RootEpic =
+/*
+console.log('singletons loaded');
+rootEpic$.subscribe({
+  next: () => {
+    console.warn('rootEpic$ subscription received:', Date.now(), arguments);
+    // debugger;
+  }
+});
+*/
+
+const rootEpic: RootEpic =
   (action$: ActionsObservable<IRootAction>, store: MiddlewareAPI<IRootStateRecord>) =>
     rootEpic$.mergeMap(epic =>
       epic(action$, store, undefined)
@@ -61,10 +77,8 @@ export const rootEpic: RootEpic =
 
 const epicMiddleware = createEpicMiddleware(rootEpic);
 
-const store: Store<IRootStateRecord> = createStore(
+export const rootStore: Store<IRootStateRecord> = createStore(
   rootReducer,
   initialState!,
   composeWithDevTools(applyMiddleware(epicMiddleware))
 );
-
-export default store;
