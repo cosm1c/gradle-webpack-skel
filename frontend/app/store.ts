@@ -59,16 +59,6 @@ export const rootEpic$: BehaviorSubject<RootEpic> = new BehaviorSubject(combineE
   // Add epics to start on page load here
 ));
 
-/*
-console.log('singletons loaded');
-rootEpic$.subscribe({
-  next: () => {
-    console.warn('rootEpic$ subscription received:', Date.now(), arguments);
-    // debugger;
-  }
-});
-*/
-
 const rootEpic: RootEpic =
   (action$: ActionsObservable<IRootAction>, store: MiddlewareAPI<IRootStateRecord>) =>
     rootEpic$.mergeMap((epic) =>

@@ -26,39 +26,32 @@ class ClientStreams {
 
   private static fetchWsUrl(): Promise<string> {
     if (process.env.NODE_ENV !== 'production') {
-      const wsUrl = 'ws://localhost:8080/ws';
       console.warn(`[${new Date().toISOString()}] DEVELOPMENT MODE ENGAGED`);
-      return Promise.resolve(wsUrl);
+      return Promise.resolve('ws://localhost:8080/ws');
     }
 
     if (window.location.protocol !== 'https:') {
       console.warn('Using insecure ws protocol as page loaded with', window.location.protocol);
     }
 
-    const httpPathPrefix = window.location.pathname.substring(1, window.location.pathname.indexOf('/', 1));
-    const fetchWsURl = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/${httpPathPrefix}/wsUrl`;
+    const fetchWsUrl = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/wsUrl`;
     return new Promise((resolve, reject) => {
-      console.debug('Fetching WebSocket URL from', fetchWsURl);
       try {
-        const xhr = new XMLHttpRequest();
-        xhr.open('get', fetchWsURl, true);
-        xhr.responseType = 'json';
-        xhr.onload = () => {
-          const status = xhr.status;
-          const wsUrl = (typeof xhr.response === 'string') ? JSON.parse(xhr.response).wsUrl : xhr.response.wsUrl;
-          if (status === 200 && wsUrl) {
-            console.info('Using wsUrl:', wsUrl);
-            resolve(wsUrl);
-          } else {
-            const err = `Failed to fetch wsUrl from ${fetchWsURl} - http response status ${status}`;
-            reject(err);
-            console.error(err, xhr.response);
-          }
-        };
-        xhr.send();
+        console.debug('Fetching WebSocket URL from', fetchWsUrl);
+        fetch(fetchWsUrl)
+          .then((response) => {
+            response.json()
+              .then((json) => {
+                const wsUrl = json.wsUrl;
+                console.debug('Using wsUrl:', wsUrl);
+                resolve(wsUrl);
+              })
+              .catch(reject);
+          })
+          .catch(reject);
       } catch (e) {
-        const err = `Failed to fetch wsUrl from ${fetchWsURl} - error: ${e}`;
-        console.log(err, e);
+        const err = `Failed to fetch wsUrl from ${fetchWsUrl} - error: ${e}`;
+        console.error(err, e);
         reject(err);
       }
     });
