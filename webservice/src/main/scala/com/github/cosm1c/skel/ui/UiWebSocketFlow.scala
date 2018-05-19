@@ -1,13 +1,15 @@
 package com.github.cosm1c.skel.ui
 
+import java.util.concurrent.TimeUnit
+
 import akka.NotUsed
 import akka.actor.ActorRefFactory
 import akka.event.LoggingAdapter
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
+import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Keep, Source}
-import akka.stream.{Materializer, ThrottleMode}
-import com.github.cosm1c.skel.JsonProtocol
 import com.github.cosm1c.skel.ui.UiWebSocketFlow._
+import com.github.cosm1c.skel.{JsonProtocol, Main}
 import io.circe._
 
 import scala.concurrent.duration._
@@ -33,7 +35,8 @@ class UiWebSocketFlow()(implicit materializer: Materializer, actorRefFactory: Ac
         val out: Source[TextMessage.Strict, NotUsed] =
             globalStorePubSub.storeSource
                 // Throttle store to avoid overloading frontend - increase duration for potentially lower bandwidth
-                .throttle(1, 100.millis, 1, ThrottleMode.Shaping)
+                .throttle(1,
+                FiniteDuration(Main.appConfig.getDuration("app.uiWebSocketStream.throttleOnePer").toNanos, TimeUnit.NANOSECONDS))
                 .merge(clientStreams.clientSources)
                 .map(circePrinter.pretty)
                 .map(TextMessage.Strict)

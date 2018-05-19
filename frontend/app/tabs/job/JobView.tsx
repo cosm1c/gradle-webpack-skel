@@ -1,8 +1,9 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
+import {ReactNode} from 'react';
 import {Widget} from '../widgetlist';
-import {JobState} from './index';
-import {Badge, Card, CardText, CardTitle, Progress} from 'reactstrap';
+import {IJobInfoRecord, JobState} from './index';
+import {Badge, Card, CardBody, CardSubtitle, CardText, CardTitle, Progress} from 'reactstrap';
 
 export interface JobViewProps {
   jobState: JobState;
@@ -16,6 +17,27 @@ function killJob(jobId: number) {
     .catch((e) => console.error('Failed to kill job', e));
 }
 
+function subTitle(jobInfo: IJobInfoRecord): ReactNode {
+  if (jobInfo.has('curr')) {
+    const curr = jobInfo.get('curr');
+
+    if (jobInfo.has('total')) {
+      const total = jobInfo.get('total');
+
+      if (jobInfo.has('endDateTime') && curr === total) {
+        return `${total}`;
+      }
+
+      return `${curr} of ${total}`;
+    }
+  }
+  if (jobInfo.has('total')) {
+    return `${jobInfo.get('total')} Expected`;
+  }
+
+  return 'Idle';
+}
+
 export const JobView: React.SFC<JobViewProps> = (props) => {
   const {className, style, jobState} = props;
   const {jobInfo, percentage} = jobState;
@@ -23,24 +45,21 @@ export const JobView: React.SFC<JobViewProps> = (props) => {
 
   return (
     <Card body className={componentClass} style={style}>
-      <CardTitle>{jobState.jobInfo.description}</CardTitle>
-      <CardText>
-        {jobInfo.has('startDateTime') && <Badge color='info'>Started: {jobInfo.get('startDateTime')}</Badge>}
-        {jobInfo.has('endDateTime') &&
-        <span> <Badge color='info'>Completed: {jobInfo.get('endDateTime')}</Badge></span>}
-        {jobInfo.has('error') && <span> <Badge color='danger'>Failed: {jobInfo.get('error')}</Badge></span>}
-        <a onClick={() => killJob(jobInfo.get('jobId'))} className='close align-text-top' href='#'>&times;</a>
-        {(typeof percentage === 'number') ?
-          <Progress
-            animated={jobInfo.get('endDateTime') === undefined}
-            value={percentage}>{percentage + '%'}</Progress>
-          : (typeof jobInfo.get('curr') !== 'undefined') ?
-            <Progress
-              animated={jobInfo.get('endDateTime') === undefined}
-              value={100}>{jobInfo.get('curr') + ' done'}</Progress>
-            : <Progress/>
-        }
-      </CardText>
+      <CardBody>
+        <CardTitle>{jobInfo.get('description')}</CardTitle>
+        <CardSubtitle className="text-right">{subTitle(jobInfo)}</CardSubtitle>
+        <CardText>
+          {jobInfo.has('startDateTime') &&
+          <span><Badge color='info'>Started: {jobInfo.get('startDateTime')}</Badge> </span>}
+          {jobInfo.has('endDateTime') &&
+          <span> <Badge color='info'>Completed: {jobInfo.get('endDateTime')}</Badge></span>}
+          {jobInfo.has('error') && <span> <Badge color='danger'>Failed: {jobInfo.get('error')}</Badge></span>}
+          <a onClick={() => killJob(jobInfo.get('jobId'))} className='close align-text-top' href='#'>&times;</a>
+        </CardText>
+        <Progress
+          animated={!jobInfo.has('endDateTime')}
+          value={(typeof percentage === 'number') ? percentage : 100}>{(typeof percentage === 'number') ? `${percentage}%` : ''}</Progress>
+      </CardBody>
     </Card>
   );
 };

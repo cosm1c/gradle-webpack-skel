@@ -13,7 +13,7 @@ export const Metrics: React.SFC<MetricsProps> = (props) => {
   const componentClass = classNames(className, 'app-metrics');
 
   return (
-    <Badge className={componentClass} style={style} color='info'>WebSockets: {webSocketCount}</Badge>
+    <Badge className={componentClass} style={style} color='info'>WebSockets: {webSocketCount.toLocaleString(navigator.language)}</Badge>
   );
 
 };
