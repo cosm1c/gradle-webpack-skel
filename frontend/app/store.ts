@@ -51,7 +51,7 @@ const rootReducer: Reducer<IRootStateRecord> = combineReducers<IRootStateRecord>
     connectionState: connectionStateReducer,
     store: monoidStoreReducer,
     chartStreams: chartStreamReducer,
-  }
+  },
   // do we need to provide getDefaultState here?
 );
 
@@ -71,8 +71,8 @@ rootEpic$.subscribe({
 
 const rootEpic: RootEpic =
   (action$: ActionsObservable<IRootAction>, store: MiddlewareAPI<IRootStateRecord>) =>
-    rootEpic$.mergeMap(epic =>
-      epic(action$, store, undefined)
+    rootEpic$.mergeMap((epic) =>
+      epic(action$, store, undefined),
     );
 
 const epicMiddleware = createEpicMiddleware(rootEpic);
@@ -80,5 +80,5 @@ const epicMiddleware = createEpicMiddleware(rootEpic);
 export const rootStore: Store<IRootStateRecord> = createStore(
   rootReducer,
   initialState!,
-  composeWithDevTools(applyMiddleware(epicMiddleware))
+  composeWithDevTools(applyMiddleware(epicMiddleware)),
 );

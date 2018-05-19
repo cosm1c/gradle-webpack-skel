@@ -2,4 +2,4 @@ import {IGlobalAlertStateRecord, initialGlobalAlertState} from './GlobalAlertSta
 import {IRootStateRecord} from '../store';
 
 export const selectGlobalAlert: (state: IRootStateRecord) => (IGlobalAlertStateRecord) =
-  state => state.get('globalAlert', initialGlobalAlertState) as IGlobalAlertStateRecord;
+  (state) => state.get('globalAlert', initialGlobalAlertState) as IGlobalAlertStateRecord;

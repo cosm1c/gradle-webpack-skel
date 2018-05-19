@@ -14,12 +14,55 @@ class ClientStreams {
 
   private static readonly DISCONNECTED_STREAM_OBSERVER: Observer<any> = {
     next: () => {
+      // noop
     },
     error: () => {
+      // noop
     },
     complete: () => {
+      // noop
     },
   };
+
+  private static fetchWsUrl(): Promise<string> {
+    if (process.env.NODE_ENV !== 'production') {
+      const wsUrl = 'ws://localhost:8080/ws';
+      console.warn(`[${new Date().toISOString()}] DEVELOPMENT MODE ENGAGED`);
+      return Promise.resolve(wsUrl);
+    }
+
+    if (window.location.protocol !== 'https:') {
+      console.warn('Using insecure ws protocol as page loaded with', window.location.protocol);
+    }
+
+    const httpPathPrefix = window.location.pathname.substring(1, window.location.pathname.indexOf('/', 1));
+    const fetchWsURl = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/${httpPathPrefix}/wsUrl`;
+    return new Promise((resolve, reject) => {
+      console.debug('Fetching WebSocket URL from', fetchWsURl);
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('get', fetchWsURl, true);
+        xhr.responseType = 'json';
+        xhr.onload = () => {
+          const status = xhr.status;
+          const wsUrl = (typeof xhr.response === 'string') ? JSON.parse(xhr.response).wsUrl : xhr.response.wsUrl;
+          if (status === 200 && wsUrl) {
+            console.info('Using wsUrl:', wsUrl);
+            resolve(wsUrl);
+          } else {
+            const err = `Failed to fetch wsUrl from ${fetchWsURl} - http response status ${status}`;
+            reject(err);
+            console.error(err, xhr.response);
+          }
+        };
+        xhr.send();
+      } catch (e) {
+        const err = `Failed to fetch wsUrl from ${fetchWsURl} - error: ${e}`;
+        console.log(err, e);
+        reject(err);
+      }
+    });
+  }
 
   private readonly streams: Map<string, Observer<any>> = new Map<string, Observer<any>>();
   private webSocketSubject?: WebSocketSubject<any>;
@@ -33,7 +76,7 @@ class ClientStreams {
     this.streams.set('store', new MonoidStoreObserver(dispatchGlobalAlertAction, dispatchMonoidStoreAction));
 
     this.connectWebSocket(dispatchConnectionAction)
-      .then(webSocketSubject => {
+      .then((webSocketSubject) => {
         if (!webSocketSubject) {
           dispatchGlobalAlertAction(globalAlertActionCreators.globalAlert('Failed to connect WebSocket', 'danger'));
         } else {
@@ -42,16 +85,13 @@ class ClientStreams {
       });
   }
 
-  private receiveError = (err: any) => {
-    console.error('WebSocket Error', err);
-    // this.dispatchGlobalAlertAction(globalAlertActionCreators.globalAlert(`WebSocket error ${JSON.stringify(err)}`, 'danger'));
+  public dispose = () => {
+    if (this.webSocketSubject) {
+      this.webSocketSubject.unsubscribe();
+    }
   };
 
-  dispose = () => {
-    this.webSocketSubject && this.webSocketSubject.unsubscribe();
-  };
-
-  subscribeStream: (streamURI: string, observer: Observer<any>) => Subscription =
+  public subscribeStream: (streamURI: string, observer: Observer<any>) => Subscription =
     (streamURI, observer) => {
       const streamId = this.nextStreamId();
       this.send(streamId, streamURI);
@@ -68,6 +108,11 @@ class ClientStreams {
       return subscription;
     };
 
+  private receiveError = (err: any) => {
+    console.error('WebSocket Error', err);
+    // this.dispatchGlobalAlertAction(globalAlertActionCreators.globalAlert(`WebSocket error ${JSON.stringify(err)}`, 'danger'));
+  };
+
   private send = (streamId: string, data: any) => {
     // console.warn('send', streamId, data);
     if (!this.webSocketSubject) {
@@ -78,23 +123,23 @@ class ClientStreams {
   };
 
   private connectWebSocket(dispatchConnectionAction: (connectionAction: ConnectionAction) => any): Promise<WebSocketSubject<any>> {
-    let eventualWsUrl = ClientStreams.fetchWsUrl();
+    const eventualWsUrl = ClientStreams.fetchWsUrl();
     return eventualWsUrl
-      .then(url => {
+      .then((url) => {
         const webSocketSubjectConfig: WebSocketSubjectConfig = {
           url,
           openObserver: {
             next: () => {
               console.info(`[${new Date().toISOString()}] WebSocket connected - ${url}`);
               dispatchConnectionAction(connectionActionCreators.connectionConnected());
-            }
+            },
           },
           closeObserver: {
             next: () => {
               console.info(`[${new Date().toISOString()}] WebSocket disconnected - ${url}`);
               this.allStreamsDisconnected();
               dispatchConnectionAction(connectionActionCreators.connectionDisconnected());
-            }
+            },
           },
         };
 
@@ -103,7 +148,7 @@ class ClientStreams {
         rootEpic$.next(createWebSocketEpic(webSocketSubject, this.receiveFrame));
 
         webSocketSubject.subscribe({
-          error: this.receiveError
+          error: this.receiveError,
         });
 
         dispatchConnectionAction(connectionActionCreators.connectConnection());
@@ -118,55 +163,14 @@ class ClientStreams {
     // this.streams.clear();
   }
 
-  private static fetchWsUrl(): Promise<string> {
-    // FIXME: TODO: uncomment code
-    // if (process.env.NODE_ENV !== 'production') {
-    const wsUrl = 'ws://localhost:8080/ws';
-    console.warn(`[${new Date().toISOString()}] DEVELOPMENT MODE ENGAGED`);
-    return Promise.resolve(wsUrl);
-    // }
-    //
-    // if (window.location.protocol !== 'https:') {
-    //   console.warn('Using insecure ws protocol as page loaded with', window.location.protocol);
-    // }
-    //
-    // const httpPathPrefix = window.location.pathname.substring(1, window.location.pathname.indexOf('/', 1));
-    // const fetchWsURl = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/${httpPathPrefix}/wsUrl`;
-    // return new Promise((resolve, reject) => {
-    //   console.debug('Fetching WebSocket URL from', fetchWsURl);
-    //   try {
-    //     const xhr = new XMLHttpRequest();
-    //     xhr.open('get', fetchWsURl, true);
-    //     xhr.responseType = 'json';
-    //     xhr.onload = () => {
-    //       const status = xhr.status;
-    //       const wsUrl = (typeof xhr.response === 'string') ? JSON.parse(xhr.response).wsUrl : xhr.response.wsUrl;
-    //       if (status === 200 && wsUrl) {
-    //         console.info('Using wsUrl:', wsUrl);
-    //         resolve(wsUrl);
-    //       } else {
-    //         const err = `Failed to fetch wsUrl from ${fetchWsURl} - http response status ${status}`;
-    //         reject(err);
-    //         console.error(err, xhr.response);
-    //       }
-    //     };
-    //     xhr.send();
-    //   } catch (e) {
-    //     const err = `Failed to fetch wsUrl from ${fetchWsURl} - error: ${e}`;
-    //     console.log(err, e);
-    //     reject(err);
-    //   }
-    // });
-  }
-
   private receiveFrame: (msg: any) => IRootAction[] =
-    msg => {
+    (msg) => {
       if (typeof msg !== 'object') {
         return [globalAlertActionCreators.globalAlert(`MalformedStreamMessage: ${JSON.stringify(msg)}`, 'danger')];
       }
 
       Object.keys(msg)
-        .forEach(streamId => {
+        .forEach((streamId) => {
           if (streamId !== '_stream') {
             if (this.streams.has(streamId)) {
               this.streams.get(streamId)!.next(msg[streamId]);
@@ -178,7 +182,7 @@ class ClientStreams {
 
       if (msg._stream) {
         Object.keys(msg._stream)
-          .forEach(streamId => {
+          .forEach((streamId) => {
               const cmd = msg._stream[streamId];
               if (cmd === null) {
                 if (this.streams.has(streamId)) {

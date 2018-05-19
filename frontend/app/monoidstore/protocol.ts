@@ -1,10 +1,10 @@
 import {MonoidStoreAction, monoidStoreActionCreators} from './actions';
 
 export function jsonToMonoidActions(json: any): MonoidStoreAction {
-  let removes: string[][] = [];
+  const removes: string[][] = [];
 
   function traverseObject(path: string[], obj: any) {
-    for (let i in obj) {
+    for (const i in obj) {
       if (obj.hasOwnProperty(i)) {
         const curr = obj[i];
         if (curr === null) {

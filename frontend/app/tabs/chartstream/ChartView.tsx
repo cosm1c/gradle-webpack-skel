@@ -13,10 +13,10 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  UncontrolledDropdown
+  UncontrolledDropdown,
 } from 'reactstrap';
 import {Chart, ChartDataSets, ChartPoint, ChartScales} from 'chart.js';
-import {Widget} from '../widgetlist/index';
+import {Widget} from '../widgetlist';
 import {chartStreamActionCreators, DaySelector, StartEndSelector, StartEndStepSelector} from './index';
 import CardBody from 'reactstrap/lib/CardBody';
 import clientStreams from '../../stream/ClientStreams';
@@ -28,38 +28,73 @@ export interface ChartViewProps {
   style?: React.CSSProperties;
 }
 
-type State = {
+interface State {
   title: string;
   configReactComponent?: JSX.Element;
   subscription?: Subscription;
   started?: number;
   ended?: number;
   error?: string;
-};
+}
 
 Chart.defaults.global.animation = Chart.defaults.global.animation || {};
 Chart.defaults.global.animation.duration = 100;
 
 export class ChartView extends React.Component<ChartViewProps, State> {
 
-  state: State = {
-    title: 'Please select a chart'
+  // TODO: Support receiving array of points per series over WebSocket
+  private static bufferChartPoints(buffer: ChartPoint[][], chartPoints: Chart.ChartPoint[]) {
+    const length = Math.max(buffer.length, chartPoints.length);
+    for (let i = 0; i < length; i++) {
+      if (chartPoints[i] !== null) {
+        if (!buffer[i]) {
+          buffer[i] = [];
+        }
+        buffer[i].push(chartPoints[i]);
+      }
+    }
+  }
+
+  private static appendChartPoints(dataSets: ChartDataSets[], buffer: ChartPoint[][]) {
+    const length = Math.max(buffer.length, dataSets.length);
+    for (let i = 0; i < length; i++) {
+      if (buffer[i] !== null) {
+        if (!dataSets[i]) {
+          dataSets[i] = {data: []};
+        }
+        dataSets[i].data!.push.apply(dataSets[i].data, buffer[i]);
+      }
+    }
+  }
+
+  public state: State = {
+    title: 'Please select a chart',
   };
 
   private readonly chartUpdate$: Subject<any> = new Subject().debounceTime(15) as Subject<any>;
 
   private element?: HTMLCanvasElement;
   private chart?: Chart;
+  private buffer: ChartPoint[][] = [];
 
   constructor(props: ChartViewProps) {
     super(props);
-    this.chartUpdate$.subscribe(_ignore => this.forceChartUpdate());
+    this.chartUpdate$.subscribe(() => this.forceChartUpdate());
     this.configChart = this.configChart.bind(this);
     this.startEndChart = this.startEndChart.bind(this);
     this.solarDateChart = this.solarDateChart.bind(this);
   }
 
-  render() {
+  public componentWillUnmount() {
+    console.debug('unmounting ChartStream', this.props.widgetKey);
+    this.cancelStream();
+    if (this.chart !== undefined) {
+      this.chart.destroy();
+      this.chart = undefined;
+    }
+  }
+
+  public render() {
     const {className, style, widgetKey} = this.props;
     const {error, subscription, configReactComponent, title, started, ended} = this.state;
     const componentClass = classNames(className, 'chart-view');
@@ -153,13 +188,13 @@ export class ChartView extends React.Component<ChartViewProps, State> {
         elements: {
           line: {
             tension: 0, // disables bezier curves
-          }
+          },
         },
         maintainAspectRatio: false,
       },
       data: {
-        datasets
-      }
+        datasets,
+      },
     });
 
     const subscription: Subscription =
@@ -180,14 +215,14 @@ export class ChartView extends React.Component<ChartViewProps, State> {
             this.setState({ended});
             this.cancelStream();
             this.forceChartUpdate();
-          }
+          },
         });
 
     this.setState({
       configReactComponent: undefined,
       title,
       subscription,
-      started: window.performance.now()
+      started: window.performance.now(),
     });
   }
 
@@ -204,17 +239,17 @@ export class ChartView extends React.Component<ChartViewProps, State> {
           },
           scaleLabel: {
             display: true,
-            labelString: 'X'
-          }
+            labelString: 'X',
+          },
         }],
         yAxes: [
           {
             scaleLabel: {
               display: true,
-              labelString: 'Y'
-            }
-          }
-        ]
+              labelString: 'Y',
+            },
+          },
+        ],
       },
       [
         {
@@ -224,8 +259,8 @@ export class ChartView extends React.Component<ChartViewProps, State> {
           pointRadius: 1.75,
           fill: false,
           data: [], // ChartPoint[]
-        }
-      ]
+        },
+      ],
     );
   }
 
@@ -242,17 +277,17 @@ export class ChartView extends React.Component<ChartViewProps, State> {
           },
           scaleLabel: {
             display: true,
-            labelString: 'X'
-          }
+            labelString: 'X',
+          },
         }],
         yAxes: [
           {
             scaleLabel: {
               display: true,
-              labelString: 'Y'
-            }
-          }
-        ]
+              labelString: 'Y',
+            },
+          },
+        ],
       },
       [
         {
@@ -262,17 +297,17 @@ export class ChartView extends React.Component<ChartViewProps, State> {
           pointRadius: 1.75,
           fill: false,
           data: [], // ChartPoint[]
-        }
-      ]
+        },
+      ],
     );
   }
 
-  private solarDateChart(isSlow: boolean, moment: moment.Moment): void {
-    const startDateISOString = moment.toISOString();
-    const endDateISOString = moment.add(1, 'day').toISOString();
+  private solarDateChart(isSlow: boolean, startMoment: moment.Moment): void {
+    const startDateISOString = startMoment.toISOString();
+    const endDateISOString = startMoment.add(1, 'day').toISOString();
     this.configChart(
       `solar${isSlow ? 'Slow' : ''}?startDate=${startDateISOString}&endDate=${endDateISOString}`,
-      `Solar ${moment.format('dddd, MMMM Do YYYY')}`,
+      `Solar ${startMoment.format('dddd, MMMM Do YYYY')}`,
       {
         xAxes: [{
           type: 'time',
@@ -282,17 +317,17 @@ export class ChartView extends React.Component<ChartViewProps, State> {
           },
           scaleLabel: {
             display: true,
-            labelString: 'DateTime'
-          }
+            labelString: 'DateTime',
+          },
         }],
         yAxes: [
           {
             scaleLabel: {
               display: true,
-              labelString: 'Degrees'
-            }
-          }
-        ]
+              labelString: 'Degrees',
+            },
+          },
+        ],
       },
       [
         {
@@ -310,36 +345,9 @@ export class ChartView extends React.Component<ChartViewProps, State> {
           pointRadius: 1.75,
           fill: false,
           data: [], // ChartPoint[]
-        }
-      ]
+        },
+      ],
     );
-  }
-
-  private buffer: ChartPoint[][] = [];
-
-  // TODO: Support receiving array of points per series over WebSocket
-  private static bufferChartPoints(buffer: ChartPoint[][], chartPoints: Chart.ChartPoint[]) {
-    const length = Math.max(buffer.length, chartPoints.length);
-    for (let i = 0; i < length; i++) {
-      if (chartPoints[i] !== null) {
-        if (!buffer[i]) {
-          buffer[i] = [];
-        }
-        buffer[i].push(chartPoints[i]);
-      }
-    }
-  }
-
-  private static appendChartPoints(dataSets: ChartDataSets[], buffer: ChartPoint[][]) {
-    const length = Math.max(buffer.length, dataSets.length);
-    for (let i = 0; i < length; i++) {
-      if (buffer[i] !== null) {
-        if (!dataSets[i]) {
-          dataSets[i] = {data: []};
-        }
-        dataSets[i].data!.push.apply(dataSets[i].data, buffer[i]);
-      }
-    }
   }
 
   private throttledChartUpdate = (chartPoints: Chart.ChartPoint[]) => {
@@ -359,15 +367,6 @@ export class ChartView extends React.Component<ChartViewProps, State> {
     this.element = element;
   };
 
-  componentWillUnmount() {
-    console.debug('unmounting ChartStream', this.props.widgetKey);
-    this.cancelStream();
-    if (this.chart !== undefined) {
-      this.chart.destroy();
-      this.chart = undefined;
-    }
-  }
-
   private cancelStream: () => void =
     () => {
       if (this.state.subscription) {
@@ -377,17 +376,31 @@ export class ChartView extends React.Component<ChartViewProps, State> {
     };
 
   private streamButtonText: () => string = () => {
-    if (this.state.error) return 'Error';
-    if (this.state.ended) return 'Complete';
-    if (this.state.subscription) return 'Cancel';
-    if (!this.state.started) return 'Idle';
+    if (this.state.error) {
+      return 'Error';
+    }
+    if (this.state.ended) {
+      return 'Complete';
+    }
+    if (this.state.subscription) {
+      return 'Cancel';
+    }
+    if (!this.state.started) {
+      return 'Idle';
+    }
     return 'Cancelled';
   };
 
   private streamButtonColor: () => string = () => {
-    if (this.state.error) return 'danger';
-    if (this.state.ended) return 'success';
-    if (this.state.subscription) return 'warning';
+    if (this.state.error) {
+      return 'danger';
+    }
+    if (this.state.ended) {
+      return 'success';
+    }
+    if (this.state.subscription) {
+      return 'warning';
+    }
     return 'warning';
   };
 }
@@ -396,6 +409,6 @@ export function chartStreamToWidget(key: string): Widget {
   return {
     itemKey: key,
     itemClassName: 'chart-stream-widget',
-    element: <ChartView widgetKey={key}/>
+    element: <ChartView widgetKey={key}/>,
   };
 }

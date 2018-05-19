@@ -5,7 +5,7 @@ import {
   CONNECTION_DISCONNECTED,
   CONNECTION_DISCONNECTING,
   CONNECTION_ERROR,
-  CONNECTION_OFFLINE
+  CONNECTION_OFFLINE,
 } from './actions';
 import {ConnectionStateEnum, IConnectionStateRecord, initialConnectionState} from './ConnectionStateRecord';
 

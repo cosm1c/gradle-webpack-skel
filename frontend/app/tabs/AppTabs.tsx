@@ -13,13 +13,13 @@ export interface AppTabsProps {
   style?: React.CSSProperties;
 }
 
-type State = {
+interface State {
   activeTab: string;
-};
+}
 
 export class AppTabs extends React.Component<AppTabsProps, State> {
 
-  state: State = {
+  public state: State = {
     activeTab: '1',
   };
 
@@ -27,17 +27,11 @@ export class AppTabs extends React.Component<AppTabsProps, State> {
     super(props);
   }
 
-  private toggle = (activeTab: string) => {
-    if (this.state.activeTab !== activeTab) {
-      this.setState({activeTab});
-    }
-  };
-
-  componentWillUnmount() {
+  public componentWillUnmount() {
     clientStreams.dispose();
   }
 
-  render() {
+  public render() {
     const {className, style} = this.props;
     const componentClass = classNames(className, 'app');
 
@@ -76,4 +70,10 @@ export class AppTabs extends React.Component<AppTabsProps, State> {
       </div>
     );
   }
+
+  private toggle = (activeTab: string) => {
+    if (this.state.activeTab !== activeTab) {
+      this.setState({activeTab});
+    }
+  };
 }

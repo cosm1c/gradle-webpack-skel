@@ -10,7 +10,7 @@ import {
   FormGroup,
   FormText,
   Input,
-  Label
+  Label,
 } from 'reactstrap';
 
 export interface StartEndStepSelectorProps {
@@ -22,15 +22,15 @@ export interface StartEndStepSelectorProps {
   style?: React.CSSProperties;
 }
 
-type State = {
+interface State {
   start: number;
   end: number;
   step: number;
-};
+}
 
 export class StartEndStepSelector extends React.Component<StartEndStepSelectorProps, State> {
 
-  state: State = {
+  public state: State = {
     start: 0,
     end: 32,
     step: 0.25,
@@ -46,24 +46,28 @@ export class StartEndStepSelector extends React.Component<StartEndStepSelectorPr
     this.state.end = initEnd;
   }
 
-  getValidationState() {
+  public getValidationState() {
     const {start, end, step} = this.state;
 
-    if (start < end && step > 0) return true;
-    else if (start === end) return true; // warning
-    else if (start > end || step <= 0) return false;
+    if (start < end && step > 0) {
+      return true;
+    } else if (start === end) {
+      return true;
+    } else if (start > end || step <= 0) {
+      return false;
+    }
     return undefined;
   }
 
-  handleStartChange(e: any) {
+  public handleStartChange(e: any) {
     this.setState({start: e.target.value});
   }
 
-  handleEndChange(e: any) {
+  public handleEndChange(e: any) {
     this.setState({end: e.target.value});
   }
 
-  render() {
+  public render() {
     const {className, style, title, onSubmit} = this.props;
     const {start, end, step} = this.state;
     const componentClass = classNames(className, 'start-end-selector');

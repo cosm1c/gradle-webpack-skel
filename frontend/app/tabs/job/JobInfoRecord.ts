@@ -6,8 +6,8 @@ interface IJobInfo {
   total?: number;
   startDateTime?: Date;
   endDateTime?: Date;
-  error?: String;
-  description?: String;
+  error?: string;
+  description?: string;
 }
 
 const defaultStreamState: IJobInfo = {

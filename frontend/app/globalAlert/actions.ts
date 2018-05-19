@@ -1,11 +1,11 @@
 export const GLOBAL_ALERT = 'GLOBAL_ALERT';
 export const ACK_GLOBAL_ALERT = 'ACK_GLOBAL_ALERT';
 
-export type GlobalAlertActions = {
+export interface GlobalAlertActions {
   // TODO: color should restrict possible values
-  GLOBAL_ALERT: { type: typeof GLOBAL_ALERT, date: Date, message: string, color: string },
-  ACK_GLOBAL_ALERT: { type: typeof ACK_GLOBAL_ALERT, date: Date },
-};
+  GLOBAL_ALERT: { type: typeof GLOBAL_ALERT, date: Date, message: string, color: string };
+  ACK_GLOBAL_ALERT: { type: typeof ACK_GLOBAL_ALERT, date: Date };
+}
 
 export type GlobalAlertAction = GlobalAlertActions[keyof GlobalAlertActions];
 

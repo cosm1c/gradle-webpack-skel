@@ -9,15 +9,15 @@ export class MonoidStoreObserver implements Observer<any> {
               private readonly dispatchMonoidStoreAction: (monoidStoreAction: MonoidStoreAction) => any) {
   }
 
-  next(value: any) {
+  public next(value: any) {
     this.dispatchMonoidStoreAction(jsonToMonoidActions(value));
   }
 
-  error(err: any) {
+  public error(err: any) {
     this.dispatchGlobalAlertAction(globalAlertActionCreators.globalAlert(`MonoidStoreError err=${JSON.stringify(err)}`, 'danger'));
   }
 
-  complete() {
+  public complete() {
     // TODO: handle reconnect
     console.warn('MonoidStoreComplete');
   }

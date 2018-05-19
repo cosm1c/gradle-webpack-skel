@@ -4,25 +4,21 @@ import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from 'reactstrap';
 export interface ChartSelectorProps {
 }
 
-type State = {
+interface State {
   dropdownOpen: boolean;
-};
+}
 
 export default class ChartSelector extends React.Component<ChartSelectorProps, State> {
 
-  state: State = {
-    dropdownOpen: false
+  public state: State = {
+    dropdownOpen: false,
   };
 
   constructor(props: ChartSelectorProps) {
     super(props);
   }
 
-  private toggle = () => {
-    this.setState({dropdownOpen: !this.state.dropdownOpen});
-  };
-
-  render() {
+  public render() {
     return (
       <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
         <DropdownToggle caret>
@@ -38,4 +34,8 @@ export default class ChartSelector extends React.Component<ChartSelectorProps, S
       </Dropdown>
     );
   }
+
+  private toggle = () => {
+    this.setState({dropdownOpen: !this.state.dropdownOpen});
+  };
 }

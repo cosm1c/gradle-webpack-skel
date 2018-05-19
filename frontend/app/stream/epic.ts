@@ -29,7 +29,7 @@ export function createWebSocketEpic(webSocketSubject: WebSocketSubject<any>,
       action$.ofType(CONNECT_CONNECTION)
         .switchMap(() =>
           webSocketSubject
-            .retryWhen(errors => errors.mergeMap(err => {
+            .retryWhen((errors) => errors.mergeMap((err) => {
               console.error('WebSocket error', err);
               if (window.navigator.onLine) {
                 console.debug(`Reconnecting WebSocket in ${RECONNECT_DELAY_MS}ms`);
@@ -39,13 +39,13 @@ export function createWebSocketEpic(webSocketSubject: WebSocketSubject<any>,
                 .take(1);
             }))
             .takeUntil(action$.ofType(DISCONNECT_CONNECTION))
-            .flatMap(data => {
+            .flatMap((data) => {
               receiveFrame(data);
               return noRootAction;
-            })
+            }),
         ),
     (action$) =>
       action$.ofType(CONNECTION_ERROR)
-        .map((value: any) => globalAlertActionCreators.globalAlert(value, 'danger'))
+        .map((value: any) => globalAlertActionCreators.globalAlert(value, 'danger')),
   );
 }

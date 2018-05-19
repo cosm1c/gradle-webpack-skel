@@ -15,10 +15,10 @@ function calcPercentage(jobInfo: IJobInfoRecord): number | null {
   return null;
 }
 
-export type JobState = {
+export interface JobState {
   jobInfo: IJobInfoRecord;
   percentage: number | null;
-};
+}
 
 export function sortByJobId(lhs: JobState, rhs: JobState): number {
   return lhs.jobInfo.jobId - rhs.jobInfo.jobId;
@@ -35,5 +35,5 @@ export const selectJobStates: OutputSelector<IRootStateRecord, JobState[], (res:
           percentage: calcPercentage(jobInfo),
         };
       })
-      .toArray().sort(sortByJobId)
+      .toArray().sort(sortByJobId),
   );

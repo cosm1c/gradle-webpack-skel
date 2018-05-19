@@ -7,16 +7,16 @@ export const CONNECTION_DISCONNECTING = 'CONNECTION_DISCONNECTING';
 export const CONNECTION_OFFLINE = 'CONNECTION_OFFLINE';
 export const CONNECTION_ERROR = 'CONNECTION_ERROR';
 
-export type ConnectionActions = {
-  CONNECT_CONNECTION: { type: typeof CONNECT_CONNECTION, date: Date },
-  DISCONNECT_CONNECTION: { type: typeof DISCONNECT_CONNECTION, date: Date },
-  CONNECTION_DISCONNECTED: { type: typeof CONNECTION_DISCONNECTED, date: Date },
-  CONNECTION_CONNECTING: { type: typeof CONNECTION_CONNECTING, date: Date },
-  CONNECTION_CONNECTED: { type: typeof CONNECTION_CONNECTED, date: Date },
-  CONNECTION_DISCONNECTING: { type: typeof CONNECTION_DISCONNECTING, date: Date },
-  CONNECTION_OFFLINE: { type: typeof CONNECTION_OFFLINE, date: Date },
-  CONNECTION_ERROR: { type: typeof CONNECTION_ERROR, date: Date, errorMessage: string },
-};
+export interface ConnectionActions {
+  CONNECT_CONNECTION: { type: typeof CONNECT_CONNECTION, date: Date };
+  DISCONNECT_CONNECTION: { type: typeof DISCONNECT_CONNECTION, date: Date };
+  CONNECTION_DISCONNECTED: { type: typeof CONNECTION_DISCONNECTED, date: Date };
+  CONNECTION_CONNECTING: { type: typeof CONNECTION_CONNECTING, date: Date };
+  CONNECTION_CONNECTED: { type: typeof CONNECTION_CONNECTED, date: Date };
+  CONNECTION_DISCONNECTING: { type: typeof CONNECTION_DISCONNECTING, date: Date };
+  CONNECTION_OFFLINE: { type: typeof CONNECTION_OFFLINE, date: Date };
+  CONNECTION_ERROR: { type: typeof CONNECTION_ERROR, date: Date, errorMessage: string };
+}
 
 export type ConnectionAction = ConnectionActions[keyof ConnectionActions];
 

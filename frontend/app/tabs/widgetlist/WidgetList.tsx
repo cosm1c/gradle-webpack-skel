@@ -15,7 +15,7 @@ export const WidgetList: React.SFC<WidgetListProps> = (props) => {
 
   return (
     <ListGroup className={componentClass} style={style}>{
-      widgets.map(widget =>
+      widgets.map((widget) =>
         <ListGroupItem key={widget.itemKey} className={widget.itemClassName} style={widget.itemStyle}>
           {widget.element}
         </ListGroupItem>)

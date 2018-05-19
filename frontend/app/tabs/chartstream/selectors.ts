@@ -9,5 +9,5 @@ export const emptyChartStreamList = List<string>();
 export const selectChartKeys: OutputSelector<IRootStateRecord, string[], (res: ChartStreamList) => string[]> =
   createSelector(
     (rootState: IRootStateRecord) => rootState.get('chartStreams', emptyChartStreamList),
-    (chartStreamsList) => chartStreamsList.valueSeq().toArray()
+    (chartStreamsList) => chartStreamsList.valueSeq().toArray(),
   );

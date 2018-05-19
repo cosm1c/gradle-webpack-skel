@@ -9,23 +9,23 @@ export interface AppNavBarProps {
   style?: React.CSSProperties;
 }
 
-type State = {
+interface State {
   isOpen: boolean;
-};
+}
 
 export class AppNavBar extends React.Component<AppNavBarProps, State> {
 
-  state: State = {
+  public state: State = {
     isOpen: true,
   };
 
-  toggle = () => {
+  public toggle = () => {
     this.setState({
-      isOpen: !this.state.isOpen
+      isOpen: !this.state.isOpen,
     });
   };
 
-  render() {
+  public render() {
     const {className, style} = this.props;
     const componentClass = classNames(className, 'app-nav-bar');
 

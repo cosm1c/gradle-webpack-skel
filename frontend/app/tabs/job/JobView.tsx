@@ -1,6 +1,6 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
-import {Widget} from '../widgetlist/index';
+import {Widget} from '../widgetlist';
 import {JobState} from './index';
 import {Badge, Card, CardText, CardTitle, Progress} from 'reactstrap';
 
@@ -12,8 +12,8 @@ export interface JobViewProps {
 
 function killJob(jobId: number) {
   fetch(`/job/${jobId}`, {method: 'DELETE'})
-    .then(response => console.debug('Kill job - DELETE response:', response))
-    .catch(e => console.error('Failed to kill job', e));
+    .then((response) => console.debug('Kill job - DELETE response:', response))
+    .catch((e) => console.error('Failed to kill job', e));
 }
 
 export const JobView: React.SFC<JobViewProps> = (props) => {
@@ -49,6 +49,6 @@ export function jobStateToWidget(jobState: JobState): Widget {
   return {
     itemKey: `job:${jobState.jobInfo.get('jobId')}`,
     itemClassName: 'job-info-widget',
-    element: <JobView jobState={jobState}/>
+    element: <JobView jobState={jobState}/>,
   };
 }

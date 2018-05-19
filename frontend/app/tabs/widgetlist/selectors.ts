@@ -5,12 +5,12 @@ import {IRootStateRecord} from '../../store';
 import {JobState, jobStateToWidget, selectJobStates} from '../job';
 import {chartStreamToWidget, selectChartKeys} from '../chartstream';
 
-export type Widget = {
+export interface Widget {
   itemKey: string;
   itemClassName?: string;
   itemStyle?: React.CSSProperties;
   element: ReactNode;
-};
+}
 
 export const selectChartKeysWidgetArray: OutputSelector<IRootStateRecord, Widget[], (res1: string[]) => Widget[]> =
   createSelector(
