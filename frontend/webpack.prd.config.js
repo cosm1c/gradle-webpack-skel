@@ -1,6 +1,6 @@
 'use strict';
 
-const path = require('path'),
+var path = require('path'),
   webpack = require('webpack'),
   // BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin,
   CopyWebpackPlugin = require('copy-webpack-plugin'),
@@ -10,11 +10,15 @@ const path = require('path'),
   HtmlWebpackPlugin = require('html-webpack-plugin'),
   CleanWebpackPlugin = require('clean-webpack-plugin');
 
+var ENV = process.env.NODE_ENV = process.env.ENV = 'production';
+
 module.exports = {
 
   mode: 'production',
 
   devtool: false,
+
+  watch: false,
 
   context: __dirname,
 
@@ -23,13 +27,12 @@ module.exports = {
   output: {
     filename: '[chunkhash]-[name].js',
     chunkFilename: '[chunkhash]-[name].chunk.js',
-    path: path.resolve(__dirname, 'dist')/*,
-    publicPath: '/'*/
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: '/'
   },
 
   module: {
     rules: [
-      // {test: /\.txt$/, use: 'raw-loader'},
       {
         test: /\.(png|jpg|gif|woff|woff2|eot|ttf|svg)$/,
         use: [
@@ -75,23 +78,15 @@ module.exports = {
   optimization: {
     minimize: false/*,
     minimizer: []*/,
+    runtimeChunk: false,
     splitChunks: {
       cacheGroups: {
-        vendor: {
+        default: false,
+        commons: {
           test: /[\\/]node_modules[\\/]/,
-          name: "vendors",
-          priority: -10,
-          chunks: "all"
-        },
-        app: {
-          test: /[\\/]app[\\/]/,
-          name: "app",
-          priority: -15,
-          chunks: "all"
-        },
-        default: {
-          priority: -20,
-          reuseExistingChunk: true
+          name: 'vendor_app',
+          chunks: 'all',
+          minChunks: 2
         }
       }
     }
@@ -101,7 +96,7 @@ module.exports = {
     // new BundleAnalyzerPlugin(),
     new CleanWebpackPlugin(['dist'], {root: path.resolve(__dirname)}),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production')
+      'process.env.NODE_ENV': JSON.stringify(ENV)
     }),
     new CopyWebpackPlugin([
       {from: 'manifest.json'},
@@ -113,9 +108,9 @@ module.exports = {
       filename: '[chunkhash]-[name].css',
       chunkFilename: '[chunkhash]-[name].chunk.css'
     }),
-    new OptimizeCssAssetsPlugin({
+    new OptimizeCssAssetsPlugin(/*{
       cssProcessorOptions: {discardComments: {removeAll: true}}
-    }),
+    }*/),
     new BabelMinifyPlugin({
       mangle: {topLevel: true}
     }),
@@ -128,11 +123,10 @@ module.exports = {
         collapseInlineTagWhitespace: false,
         collapseWhitespace: true,
         // conservativeCollapse: true,
+        keepClosingSlash: true,
         removeComments: true,
         minifyCSS: true,
-        minifyJS: true,
-        sortAttributes: true,
-        sortClassName: true
+        minifyJS: true
       }
     })
   ]

@@ -89,7 +89,7 @@ export class StartEndSelector extends React.Component<StartEndSelectorProps, Sta
           </form>
         </CardBody>
         <CardFooter>
-          <Button onClick={() => onSubmit(start, end)} color='primary'>Submit</Button>
+          <Button onClick={() => onSubmit(Number(start), Number(end))} color='primary'>Submit</Button>
         </CardFooter>
       </Card>
     );

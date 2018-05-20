@@ -6,15 +6,24 @@ import {Provider} from 'react-redux';
 import {AppNavBar} from './navbar/AppNavBar';
 import {AlertToasterConnected} from './globalAlert/AlertToasterConnected';
 import {AppTabsConnected} from './tabs/AppTabsConnected';
+// import {AppTabsLoadingComponent} from './tabs/AppTabsLoadingComponent';
 import {rootStore} from './store';
 
+if (module.hot) {
+  module.hot.accept();
+}
+
 /*
-import * as Loadable from 'react-loadable';
-import {AppTabsLoadingComponent} from './tabs/AppTabsLoadingComponent';
 const LoadableTabs = Loadable({
-  loader: () => import('./tabs/AppTabsLoadable'),
-  loading: AppTabsLoadingComponent
+  loader: () => import(/!* webpackChunkName: "AppTabsLoadable" *!/'./tabs/AppTabsLoadable'),
+  loading: AppTabsLoadingComponent,
 });
+*/
+
+/*
+if(process.env.NODE_ENV === 'development'){
+  React.createElement(LoadableTabs).type.constructor.load();
+}
 */
 
 const Root = (

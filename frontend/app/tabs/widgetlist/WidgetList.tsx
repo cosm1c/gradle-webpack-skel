@@ -1,6 +1,5 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
-import {ListGroup, ListGroupItem} from 'reactstrap';
 import {Widget} from './selectors';
 
 export interface WidgetListProps {
@@ -14,11 +13,9 @@ export const WidgetList: React.SFC<WidgetListProps> = (props) => {
   const componentClass = classNames(className, 'widget-list');
 
   return (
-    <ListGroup className={componentClass} style={style}>{
+    <div className={componentClass} style={style}>{
       widgets.map((widget) =>
-        <ListGroupItem key={widget.itemKey} className={widget.itemClassName} style={widget.itemStyle}>
-          {widget.element}
-        </ListGroupItem>)
-    }</ListGroup>
+        <div key={widget.itemKey} className={widget.itemClassName} style={widget.itemStyle}>{widget.element}</div>)
+    }</div>
   );
 };

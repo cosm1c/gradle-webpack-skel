@@ -138,11 +138,7 @@ class ClientStreams {
 
         const webSocketSubject = Observable.webSocket(webSocketSubjectConfig) as WebSocketSubject<any>;
 
-        rootEpic$.next(createWebSocketEpic(webSocketSubject, this.receiveFrame));
-
-        webSocketSubject.subscribe({
-          error: this.receiveError,
-        });
+        rootEpic$.next(createWebSocketEpic(webSocketSubject, this.receiveFrame, this.receiveError));
 
         dispatchConnectionAction(connectionActionCreators.connectConnection());
 

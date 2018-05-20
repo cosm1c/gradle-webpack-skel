@@ -22,9 +22,10 @@ const RECONNECT_DELAY_MS = 1000;
 const noRootAction: IRootAction[] = [];
 
 export function createWebSocketEpic(webSocketSubject: WebSocketSubject<any>,
-                                    receiveFrame: (data: any) => IRootAction[]): RootEpic {
+                                    receiveFrame: (data: any) => IRootAction[],
+                                    receiveError: (err: any) => void): RootEpic {
   // TODO: dispatch CONNECTION_OFFLINE, CONNECTION_CONNECTING and CONNECTION_DISCONNECTING events
-  return combineEpics(
+  const epic = combineEpics(
     (action$: ActionsObservable<IRootAction>/*, rootStore, dependencies*/) =>
       action$.ofType(CONNECT_CONNECTION)
         .switchMap(() =>
@@ -48,4 +49,9 @@ export function createWebSocketEpic(webSocketSubject: WebSocketSubject<any>,
       action$.ofType(CONNECTION_ERROR)
         .map((value: any) => globalAlertActionCreators.globalAlert(value, 'danger')),
   );
+  // TODO: possible bug - why is this needed?
+  webSocketSubject.subscribe({
+    error: receiveError,
+  });
+  return epic;
 }

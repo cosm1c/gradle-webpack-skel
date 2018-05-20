@@ -21,6 +21,7 @@
     "@types/react-redux": "^5.0.20",
     "@types/reactstrap": "^5.0.24",
     "@types/redux-immutable": "^3.0.38",
+    "@types/webpack-env": "^1.13.6",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
     "babel-minify-webpack-plugin": "^0.3.1",

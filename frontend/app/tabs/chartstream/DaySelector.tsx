@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import * as classNames from 'classnames';
 import * as React from 'react';
-import {Card, CardBody, CardTitle} from 'reactstrap';
+import {Card, CardTitle} from 'reactstrap';
 import {Calendar} from 'react-yearly-calendar';
 
 export interface DaySelectorProps {
@@ -17,12 +17,10 @@ export const DaySelector: React.SFC<DaySelectorProps> = (props) => {
 
   return (<Card className={componentClass} style={style}>
       <CardTitle>{title}</CardTitle>
-      <CardBody>
-        <Calendar
-          year={new Date().getFullYear()}
-          onPickDate={onPickDate}
-        />
-      </CardBody>
+      <Calendar
+        year={new Date().getFullYear()}
+        onPickDate={onPickDate}
+      />
     </Card>
   );
 };

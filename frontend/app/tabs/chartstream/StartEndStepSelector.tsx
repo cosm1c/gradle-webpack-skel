@@ -95,7 +95,7 @@ export class StartEndStepSelector extends React.Component<StartEndStepSelectorPr
           </form>
         </CardBody>
         <CardFooter>
-          <Button onClick={() => onSubmit(start, end, step)} color='primary'>Submit</Button>
+          <Button onClick={() => onSubmit(Number(start), Number(end), Number(step))} color='primary'>Submit</Button>
         </CardFooter>
       </Card>
     );

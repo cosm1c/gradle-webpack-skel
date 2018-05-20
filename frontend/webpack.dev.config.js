@@ -1,30 +1,29 @@
 'use strict';
 
-const path = require('path'),
+var path = require('path'),
   webpack = require('webpack'),
   HtmlWebpackPlugin = require('html-webpack-plugin'),
-  CopyWebpackPlugin = require('copy-webpack-plugin');
+  CopyWebpackPlugin = require('copy-webpack-plugin'),
+  CleanWebpackPlugin = require('clean-webpack-plugin');
 
-const ENV = process.env.NODE_ENV = process.env.ENV = 'development';
+var ENV = process.env.NODE_ENV = process.env.ENV = 'development';
 
 module.exports = {
+
   mode: 'development',
+
+  devtool: 'eval-source-map',
 
   watch: true,
 
-  entry: ['./app/main.tsx', './app/main.less'],
+  context: __dirname,
 
-  /*
-    entry: [
-      'webpack-dev-server/client?http://localhost:9090',
-      'webpack/hot/only-dev-server',
-      './app/main.tsx'
-    ],
-  */
+  entry: ['./app/main.tsx', './app/main.less'],
 
   output: {
     filename: '[name].js',
-    // path: path.resolve(__dirname, 'out', 'ui'),
+    // chunkFilename: '[name].chunk.js',
+    // path: path.resolve(__dirname, 'dist'),
     publicPath: '/'
   },
 
@@ -41,26 +40,12 @@ module.exports = {
         use: 'source-map-loader'
       },
       {
-        test: /\.(jpg|png|gif)$/,
-        use: 'file-loader'
-      },
-      {
-        test: /\.(woff|woff2|eot|ttf|svg)$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            limit: 100000
-          }
-        }
-      },
-      {
-        test: /\.css$/,
+        test: /\.(png|jpg|gif|woff|woff2|eot|ttf|svg)$/,
         use: [
           {
-            loader: 'css-loader',
+            loader: 'file-loader',
             options: {
-              minimize: false,
-              sourceMap: true
+              outputPath: 'images'
             }
           }
         ]
@@ -88,13 +73,10 @@ module.exports = {
         ]
       },
       {
-        test: /\.html$/,
-        loader: 'html-loader'
-      },
-      {
         test: /\.tsx?$/,
         exclude: /node_modules/,
         use: [
+          //{loader: 'babel-loader'},
           {loader: 'ts-loader'}
         ]
       }
@@ -103,14 +85,8 @@ module.exports = {
 
   resolve: {
     modules: [__dirname, path.resolve(__dirname, '..', 'node_modules')],
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.css', '.less', '.json']
+    extensions: ['.css', '.less', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
-
-  devtool: 'eval-source-map',
-
-  context: __dirname,
-
-  target: "web",
 
   devServer: {
     proxy: {
@@ -119,30 +95,30 @@ module.exports = {
     host: 'localhost',
     port: 9090,
     publicPath: 'http://localhost:9090/',
-    // contentBase: path.resolve(__dirname, 'out'),
+    // contentBase: path.resolve(__dirname, 'dist'),
     contentBase: false,
     compress: true,
     stats: true,
+    inline: false,
+    overlay: {
+      warnings: true,
+      errors: true
+    },
     hot: true
   },
 
   plugins: [
+    new CleanWebpackPlugin(['dist'], {root: path.resolve(__dirname)}),
     new webpack.LoaderOptionsPlugin({
       minimize: false,
       debug: true,
       options: {
-        context: __dirname,
-        htmlLoader: {
-          minimize: true,
-          removeAttributeQuotes: false,
-          caseSensitive: true
-        }
+        context: __dirname
       }
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(ENV)
     }),
-
     new CopyWebpackPlugin([
       {from: 'manifest.json'},
       {from: 'favicon.ico'},
@@ -153,7 +129,8 @@ module.exports = {
     //new webpack.NamedModulesPlugin(),
     new HtmlWebpackPlugin({
       template: 'index.html',
-      chunksSortMode: 'dependency',
+      // chunksSortMode: 'dependency',
+      keepClosingSlash: true,
       inject: true,
       xhtml: true
     })

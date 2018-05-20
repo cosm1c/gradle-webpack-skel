@@ -44,18 +44,22 @@ export const JobView: React.SFC<JobViewProps> = (props) => {
   const componentClass = classNames(className, 'job-view');
 
   return (
-    <Card body className={componentClass} style={style}>
+    <Card className={componentClass} style={style}>
       <CardBody>
-        <CardTitle>{jobInfo.get('description')}</CardTitle>
-        <CardSubtitle className="text-right">{subTitle(jobInfo)}</CardSubtitle>
+        <CardTitle>
+          <button type='button' className='close' aria-label='Close' onClick={() => killJob(jobInfo.get('jobId'))}>
+            <span aria-hidden='true'>&times;</span>
+          </button>
+          #{jobInfo.get('jobId').toFixed()} {jobInfo.get('description')}
+        </CardTitle>
+        <CardSubtitle className='text-right'>{subTitle(jobInfo)}</CardSubtitle>
         <CardText>
           {jobInfo.has('startDateTime') &&
           <span><Badge color='info'>Started: {jobInfo.get('startDateTime')}</Badge> </span>}
           {jobInfo.has('endDateTime') &&
           <span> <Badge color='info'>Completed: {jobInfo.get('endDateTime')}</Badge></span>}
           {jobInfo.has('error') && <span> <Badge color='danger'>Failed: {jobInfo.get('error')}</Badge></span>}
-          <a onClick={() => killJob(jobInfo.get('jobId'))} className='close align-text-top' href='#'>&times;</a>
-        </CardText>
+          </CardText>
         <Progress
           animated={!jobInfo.has('endDateTime')}
           value={(typeof percentage === 'number') ? percentage : 100}>{(typeof percentage === 'number') ? `${percentage}%` : ''}</Progress>

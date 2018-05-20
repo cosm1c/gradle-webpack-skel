@@ -3,11 +3,14 @@
 Simple starter for a backend and frontend application with updates sent over WebSocket.
 
 ## BACKLOG
- * OHLC Chart - frontend selects calendar day and charts that day with webservice providing OHLC data for any stream
+ * Switch to SASS and import just what is used from Bootstrap (see: https://getbootstrap.com/docs/4.0/getting-started/theming/) 
  * upgrade to rxjs@6 and @types/redux-observable@6 once redux-observable supports it, see: https://github.com/redux-observable/redux-observable/issues/491
- * Use react-loadable - see comments in frontend/app/main.tsx
- * RequestMetrics: activeRequests using BidiFlow, request duration using custom directive 
- * Use static html for initial render with no-JS, dynamically imported React
+ * import styles from code not with Webpack config entry points?
+ * Use react-loadable - see comments in frontend/app/main.tsx (currently breaks dev-server but works in PRD)
+ * Combine Webpack configs for easier maintenance (use webpack mode?)
+ * OHLC Chart - with webservice providing OHLC data for any stream
+ * RequestMetrics: totalRequests and activeRequests using BidiFlow, http response details and duration using custom directive 
+ * Initial render occurs in initial static html with no-JS, dynamically imported remainder (faster first render)
  * checkbox to enable reconnect - off by default
  * restart streams on WebSocket reconnect
  * binary Avro encoding of chart points over WebSocket

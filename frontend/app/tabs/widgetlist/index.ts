@@ -1,4 +1,4 @@
 export * from './WidgetList';
-export * from './JobsListConnected';
-export * from './ChartStreamsListConnected';
+export * from '../job/JobsListConnected';
+export * from '../chartstream/ChartStreamsListConnected';
 export * from './selectors';
