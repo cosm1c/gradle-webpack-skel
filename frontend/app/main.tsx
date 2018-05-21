@@ -1,8 +1,10 @@
+import 'whatwg-fetch';
 import 'babel-polyfill';
 // import './main.less';
 import * as React from 'react';
 import {render} from 'react-dom';
 import {Provider} from 'react-redux';
+// import * as Loadable from 'react-loadable';
 import {AppNavBar} from './navbar/AppNavBar';
 import {AlertToasterConnected} from './globalAlert/AlertToasterConnected';
 import {AppTabsConnected} from './tabs/AppTabsConnected';
@@ -10,20 +12,14 @@ import {AppTabsConnected} from './tabs/AppTabsConnected';
 import {rootStore} from './store';
 
 if (module.hot) {
-  module.hot.accept();
+  module.hot.accept(console.error);
 }
 
 /*
 const LoadableTabs = Loadable({
-  loader: () => import(/!* webpackChunkName: "AppTabsLoadable" *!/'./tabs/AppTabsLoadable'),
+  loader: () => import('./tabs/AppTabsLoadable'),
   loading: AppTabsLoadingComponent,
 });
-*/
-
-/*
-if(process.env.NODE_ENV === 'development'){
-  React.createElement(LoadableTabs).type.constructor.load();
-}
 */
 
 const Root = (

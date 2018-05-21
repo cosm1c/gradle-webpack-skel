@@ -31,11 +31,6 @@ module.exports = {
     rules: [
       {
         enforce: 'pre',
-        test: /\.js$/,
-        loader: 'source-map-loader'
-      },
-      {
-        enforce: 'pre',
         test: /\.tsx?$/,
         use: 'source-map-loader'
       },
@@ -126,7 +121,6 @@ module.exports = {
       {from: 'images', to: 'images'}
     ]),
     new webpack.HotModuleReplacementPlugin(),
-    //new webpack.NamedModulesPlugin(),
     new HtmlWebpackPlugin({
       template: 'index.html',
       // chunksSortMode: 'dependency',
