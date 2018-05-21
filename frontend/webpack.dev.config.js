@@ -18,7 +18,7 @@ module.exports = {
 
   context: __dirname,
 
-  entry: ['./app/main.tsx', './app/main.less'],
+  entry: ['./app/main.tsx', './app/main.scss'],
 
   output: {
     filename: '[name].js',
@@ -37,34 +37,16 @@ module.exports = {
       {
         test: /\.(png|jpg|gif|woff|woff2|eot|ttf|svg)$/,
         use: [
-          {
-            loader: 'file-loader',
-            options: {
-              outputPath: 'images'
-            }
-          }
+          {loader: 'file-loader', options: {outputPath: 'images'}}
         ]
       },
       {
-        test: /\.less$/,
+        test: /\.scss$/,
         use: [
-          {
-            loader: "style-loader"
-          },
-          {
-            loader: "css-loader",
-            options: {
-              sourceMap: true
-            }
-          },
-          {
-            loader: "less-loader",
-            options: {
-              sourceMap: true,
-              strictMath: true,
-              noIeCompat: true
-            }
-          }
+          //process.env.NODE_ENV !== 'production' ? 'style-loader' : MiniCssExtractPlugin.loader,
+          {loader: "style-loader"},
+          {loader: "css-loader", options: {sourceMap: true}},
+          {loader: "sass-loader", options: {sourceMap: true}}
         ]
       },
       {

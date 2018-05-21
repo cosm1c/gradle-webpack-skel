@@ -22,7 +22,7 @@ module.exports = {
 
   context: __dirname,
 
-  entry: ['./app/main.tsx', './app/main.less'],
+  entry: ['./app/main.tsx', './app/main.scss'],
 
   output: {
     filename: '[chunkhash]-[name].js',
@@ -36,27 +36,15 @@ module.exports = {
       {
         test: /\.(png|jpg|gif|woff|woff2|eot|ttf|svg)$/,
         use: [
-          {
-            loader: 'file-loader',
-            options: {
-              outputPath: 'images'
-            }
-          }
+          {loader: 'file-loader', options: {outputPath: 'images'}}
         ]
       },
       {
-        test: /\.less$/,
+        test: /\.scss$/,
         use: [
           MiniCssExtractPlugin.loader,
           {loader: 'css-loader'},
-          {
-            loader: 'less-loader',
-            options: {
-              sourceMap: false,
-              strictMath: true,
-              noIeCompat: true
-            }
-          }
+          {loader: 'sass-loader', options: {sourceMap: false}}
         ]
       },
       {

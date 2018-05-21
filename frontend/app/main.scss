@@ -1,0 +1,83 @@
+/*
+ * React Yearly Calendar
+ */
+@import './style/react-yearly-calendar';
+/*
+ * Bootstrap v4.1.1 (https://getbootstrap.com/)
+ */
+// Mandatory Bootstrap
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+// Optional Bootstrap - add as required
+@import "~bootstrap/scss/root";
+@import "~bootstrap/scss/reboot";
+@import "~bootstrap/scss/type";
+@import "~bootstrap/scss/images";
+//@import "~bootstrap/scss/code";
+//@import "~bootstrap/scss/grid";
+//@import "~bootstrap/scss/tables";
+@import "~bootstrap/scss/forms";
+@import "~bootstrap/scss/buttons";
+@import "~bootstrap/scss/transitions";
+@import "~bootstrap/scss/dropdown";
+@import "~bootstrap/scss/button-group";
+//@import "~bootstrap/scss/input-group";
+//@import "~bootstrap/scss/custom-forms";
+@import "~bootstrap/scss/nav";
+@import "~bootstrap/scss/navbar";
+@import "~bootstrap/scss/card";
+//@import "~bootstrap/scss/breadcrumb";
+//@import "~bootstrap/scss/pagination";
+@import "~bootstrap/scss/badge";
+//@import "~bootstrap/scss/jumbotron";
+//@import "~bootstrap/scss/alert";
+@import "~bootstrap/scss/progress";
+//@import "~bootstrap/scss/media";
+//@import "~bootstrap/scss/list-group";
+@import "~bootstrap/scss/close";
+//@import "~bootstrap/scss/modal";
+//@import "~bootstrap/scss/tooltip";
+//@import "~bootstrap/scss/popover";
+//@import "~bootstrap/scss/carousel";
+@import "~bootstrap/scss/utilities";
+@import "~bootstrap/scss/print";
+
+/* --------------------
+ * Application specific
+ */
+html, body, #root, .root-container {
+    width: 100%;
+    height: 100%;
+}
+
+#root .navbar {
+    margin: 0;
+}
+
+.root-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.main-container {
+    flex: 1 1 auto;
+    position: relative;
+    overflow-y: auto;
+    margin-bottom: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.chartjs-container {
+    position: relative;
+    height: 20rem;
+    width: 100%;
+}
+
+.footer {
+    .alert {
+        margin-bottom: 0;
+    }
+}

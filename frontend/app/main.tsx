@@ -1,6 +1,6 @@
 import 'whatwg-fetch';
 import 'babel-polyfill';
-// import './main.less';
+// import './main.scss';
 import * as React from 'react';
 import {render} from 'react-dom';
 import {Provider} from 'react-redux';
