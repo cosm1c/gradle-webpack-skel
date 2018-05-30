@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "description": "Webpack skeleton project with TypeScript, Tree Shaking and Code Splitting",
   "main": "index.js",
-  "sideEffects": false,
+  "sideEffects": [
+    "*.css",
+    "*.scss"
+  ],
   "scripts": {
-    "dev-server": "webpack-dev-server --config frontend/webpack.dev.config.js",
+    "dev-server": "webpack-dev-server --config frontend/webpack.config.js",
     "test": "jest",
-    "package": "webpack --config frontend/webpack.prd.config.js"
+    "package": "webpack --mode=production --config frontend/webpack.config.js"
   },
   "author": "Cory Prowse <cory@prowse.com>",
   "license": "UNLICENSED",
@@ -34,7 +37,7 @@
     "file-loader": "^1.1.11",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
-    "jest": "^22.4.3",
+    "jest": "^23.0.1",
     "mini-css-extract-plugin": "^0.4.0",
     "node-sass": "^4.9.0",
     "optimize-css-assets-webpack-plugin": "^4.0.0",

@@ -1,6 +1,6 @@
+import './main.scss';
 import 'whatwg-fetch';
 import 'babel-polyfill';
-// import './main.scss';
 import * as React from 'react';
 import {render} from 'react-dom';
 import {Provider} from 'react-redux';
@@ -17,7 +17,7 @@ if (module.hot) {
 
 /*
 const LoadableTabs = Loadable({
-  loader: () => import('./tabs/AppTabsLoadable'),
+  loader: () => import(/!* webpackChunkName: "AppTabsLoadable" *!/ './tabs/AppTabsLoadable'),
   loading: AppTabsLoadingComponent,
 });
 */
