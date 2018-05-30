@@ -51,15 +51,21 @@ export class AppTabs extends React.Component<AppTabsProps, State> {
     return (
       <div className={componentClass} style={style}>
         <Card className='sticky-top'>
-          <Nav tabs>
+          <Nav tabs={true}>
             <NavItem>
               <NavLink
                 className={classNames({active: this.state.activeTab === '1'})}
-                onClick={() => this.toggle('1')}>Jobs</NavLink></NavItem>
+                onClick={this.selectJobsTab}
+              >
+                Jobs
+              </NavLink></NavItem>
             <NavItem>
               <NavLink
                 className={classNames({active: this.state.activeTab === '2'})}
-                onClick={() => this.toggle('2')}>Charts</NavLink>
+                onClick={this.selectChartsTab}
+              >
+                Charts
+              </NavLink>
             </NavItem>
           </Nav>
           <TabContent activeTab={this.state.activeTab}>
@@ -86,6 +92,10 @@ export class AppTabs extends React.Component<AppTabsProps, State> {
       </div>
     );
   }
+
+  private selectJobsTab = () => this.toggle('1');
+
+  private selectChartsTab = () => this.toggle('2');
 
   private toggle = (activeTab: string) => {
     if (this.state.activeTab !== activeTab) {

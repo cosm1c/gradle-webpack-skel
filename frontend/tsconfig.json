@@ -2,8 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "module": "esnext",
-    "jsx": "react",
-    "outDir": "frontend/out",
+    "jsx": "preserve",
     "moduleResolution": "node",
     "strict": true,
     "alwaysStrict": true,
@@ -28,8 +27,7 @@
   },
   "exclude": [
     "../node_modules",
-    "webpack.dev.config.js",
-    "webpack.prd.config.js",
+    "webpack.config.js",
     "dist"
   ]
 }

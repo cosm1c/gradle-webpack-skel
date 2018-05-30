@@ -96,7 +96,6 @@ module.exports = (env, argv) => ({
     //       chunks: 'all',
     //       minChunks: 2
     //     },
-    //     // TODO: break Sass up to load on demand, minimal for first render
     //     styles: {
     //       name: 'styles',
     //       test: /\.css$/,

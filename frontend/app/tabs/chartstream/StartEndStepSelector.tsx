@@ -68,26 +68,42 @@ export class StartEndStepSelector extends React.Component<StartEndStepSelectorPr
   }
 
   public render() {
-    const {className, style, title, onSubmit} = this.props;
+    const {className, style, title} = this.props;
     const {start, end, step} = this.state;
     const componentClass = classNames(className, 'start-end-selector');
 
-    return (<Card className={componentClass} style={style}>
+    return (
+      <Card className={componentClass} style={style}>
         <CardTitle>{title}</CardTitle>
         <CardBody>
           <form>
             <FormGroup>
               <Label>Start</Label>
-              <Input type='number' value={start} placeholder='Enter start' valid={this.getValidationState()}
-                     onChange={this.handleStartChange}/>
+              <Input
+                type='number'
+                value={start}
+                placeholder='Enter start'
+                valid={this.getValidationState()}
+                onChange={this.handleStartChange}
+              />
 
               <Label>End</Label>
-              <Input type='number' value={end} placeholder='Enter end' valid={this.getValidationState()}
-                     onChange={this.handleEndChange}/>
+              <Input
+                type='number'
+                value={end}
+                placeholder='Enter end'
+                valid={this.getValidationState()}
+                onChange={this.handleEndChange}
+              />
 
               <Label>Step</Label>
-              <Input type='number' value={step} placeholder='Enter step' valid={this.getValidationState()}
-                     onChange={this.handleEndChange}/>
+              <Input
+                type='number'
+                value={step}
+                placeholder='Enter step'
+                valid={this.getValidationState()}
+                onChange={this.handleEndChange}
+              />
 
               <FormFeedback/>
               <FormText>Invalid values do not prevent submission to allow for testing error conditions.</FormText>
@@ -95,10 +111,16 @@ export class StartEndStepSelector extends React.Component<StartEndStepSelectorPr
           </form>
         </CardBody>
         <CardFooter>
-          <Button onClick={() => onSubmit(Number(start), Number(end), Number(step))} color='primary'>Submit</Button>
+          <Button onClick={this.submitForm} color='primary'>Submit</Button>
         </CardFooter>
       </Card>
     );
   }
 
+  private submitForm = () => {
+    const {onSubmit} = this.props;
+    const {start, end, step} = this.state;
+
+    onSubmit(Number(start), Number(end), Number(step));
+  };
 }

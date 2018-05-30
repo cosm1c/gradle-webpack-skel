@@ -21,14 +21,14 @@ export default class ChartSelector extends React.Component<ChartSelectorProps, S
   public render() {
     return (
       <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-        <DropdownToggle caret>
+        <DropdownToggle caret={true}>
           Dropdown
         </DropdownToggle>
         <DropdownMenu>
-          <DropdownItem header>Header</DropdownItem>
-          <DropdownItem disabled>Action</DropdownItem>
+          <DropdownItem header={true}>Header</DropdownItem>
+          <DropdownItem disabled={true}>Action</DropdownItem>
           <DropdownItem>Another Action</DropdownItem>
-          <DropdownItem divider/>
+          <DropdownItem divider={true}/>
           <DropdownItem>Another Action</DropdownItem>
         </DropdownMenu>
       </Dropdown>

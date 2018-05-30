@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import {Moment} from 'moment';
 import {Subject} from 'rxjs/Subject';
 import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/operator/debounceTime';
@@ -95,57 +96,48 @@ export class ChartView extends React.Component<ChartViewProps, State> {
   }
 
   public render() {
-    const {className, style, widgetKey} = this.props;
+    const {className, style} = this.props;
     const {error, subscription, configReactComponent, title, started, ended} = this.state;
     const componentClass = classNames(className, 'chart-view');
 
     return (
-      <Card body className={componentClass} style={style}>
+      <Card body={true} className={componentClass} style={style}>
         <CardBody>
           <CardTitle>
-            <button type='button' className='close' aria-label='Close'
-                    onClick={() => rootStore.dispatch(chartStreamActionCreators.delChartStream(widgetKey))}>
+            <button
+              type='button'
+              className='close'
+              aria-label='Close'
+              onClick={this.closeChartStream}
+            >
               <span aria-hidden='true'>&times;</span>
             </button>
-            <Button disabled={subscription === undefined} className='float-right clearfix' size='sm'
-                    color={this.streamButtonColor()} onClick={this.cancelStream}>{this.streamButtonText()}</Button>
+            <Button
+              disabled={subscription === undefined}
+              className='float-right clearfix'
+              size='sm'
+              color={this.streamButtonColor()}
+              onClick={this.cancelStream}
+            >
+              {this.streamButtonText()}
+            </Button>
             {title} {(ended !== undefined) && (<span> [{(ended - started!).toFixed(2)}ms]</span>)}
           </CardTitle>
           <CardSubtitle>{this.state.error !== undefined && (<Badge color='danger'>{error}</Badge>)}</CardSubtitle>
           {(started === undefined) && (
             <UncontrolledDropdown>
-              <DropdownToggle caret>Choose Chart</DropdownToggle>
+              <DropdownToggle caret={true}>Choose Chart</DropdownToggle>
               <DropdownMenu>
-                <DropdownItem onClick={() =>
-                  this.displayChartConfig(<DaySelector title='Pick Day' onPickDate={(momentDate) =>
-                    this.solarDateChart(false, momentDate)}/>)}>Solar</DropdownItem>
-                <DropdownItem onClick={() =>
-                  this.displayChartConfig(<DaySelector title='Pick Day' onPickDate={(momentDate) =>
-                    this.solarDateChart(true, momentDate)}/>)}>Solar Slow</DropdownItem>
-                <DropdownItem divider/>
-                <DropdownItem onClick={() =>
-                  this.displayChartConfig(<StartEndSelector title='Enter Start and End'
-                                                            initStart={0} initEnd={10} onSubmit={(start, end) =>
-                    this.startEndChart('count', start, end)}/>)}>Count</DropdownItem>
-                <DropdownItem onClick={() =>
-                  this.displayChartConfig(<StartEndSelector title='Enter Start and End'
-                                                            initStart={0} initEnd={10} onSubmit={(start, end) =>
-                    this.startEndChart('countSlow', start, end)}/>)}>Count Slow</DropdownItem>
-                <DropdownItem divider/>
-                <DropdownItem onClick={() =>
-                  this.displayChartConfig(<StartEndStepSelector title='Enter Start and End'
-                                                                initStart={0} initEnd={32}
-                                                                onSubmit={(start, end, step) =>
-                                                                  this.startEndStepChart('sine', start, end, step)}/>)}>Sine</DropdownItem>
-                <DropdownItem onClick={() =>
-                  this.displayChartConfig(<StartEndStepSelector title='Enter Start and End'
-                                                                initStart={0} initEnd={32}
-                                                                onSubmit={(start, end, step) =>
-                                                                  this.startEndStepChart('sineSlow', start, end, step)}/>)}>Sine
-                  Slow</DropdownItem>
-                <DropdownItem divider/>
-                <DropdownItem onClick={() =>
-                  this.configChart('error', 'Error Source', {}, [])}>Error Source</DropdownItem>
+                <DropdownItem onClick={this.selectSolar}>Solar</DropdownItem>
+                <DropdownItem onClick={this.selectSolarSlow}>Solar Slow</DropdownItem>
+                <DropdownItem divider={true}/>
+                <DropdownItem onClick={this.selectCount}>Count</DropdownItem>
+                <DropdownItem onClick={this.selectCountSlow}>Count Slow</DropdownItem>
+                <DropdownItem divider={true}/>
+                <DropdownItem onClick={this.selectSine}>Sine</DropdownItem>
+                <DropdownItem onClick={this.selectSineSlow}>Sine Slow</DropdownItem>
+                <DropdownItem divider={true}/>
+                <DropdownItem onClick={this.selectError}>Error Source</DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>
           )}
@@ -157,6 +149,86 @@ export class ChartView extends React.Component<ChartViewProps, State> {
       </Card>
     );
   }
+
+  private selectSolar = () => {
+    this.displayChartConfig((
+      <DaySelector
+        title='Pick Day'
+        onPickDate={this.onPickSolarDate}
+      />
+    ));
+  };
+
+  private onPickSolarDate = (momentDate: Moment) => this.solarDateChart(false, momentDate);
+
+  private selectSolarSlow = () => {
+    this.displayChartConfig((
+      <DaySelector
+        title='Pick Day'
+        onPickDate={this.onPickSolarSlowDate}
+      />
+    ));
+  };
+
+  private onPickSolarSlowDate = (momentDate: Moment) => this.solarDateChart(true, momentDate);
+
+  private selectCount = () => {
+    this.displayChartConfig((
+      <StartEndSelector
+        title='Enter Start and End'
+        initStart={0}
+        initEnd={10}
+        onSubmit={this.onPickCountRange}
+      />
+    ));
+  };
+
+  private onPickCountRange = (start: number, end: number) => this.startEndChart('count', start, end);
+
+  private selectCountSlow = () => {
+    this.displayChartConfig((
+      <StartEndSelector
+        title='Enter Start and End'
+        initStart={0}
+        initEnd={10}
+        onSubmit={this.onPickCountSlowRange}
+      />
+    ));
+  };
+
+  private onPickCountSlowRange = (start: number, end: number) => this.startEndChart('countSlow', start, end);
+
+  private selectSine = () => {
+    this.displayChartConfig((
+      <StartEndStepSelector
+        title='Enter Start and End'
+        initStart={0}
+        initEnd={32}
+        onSubmit={this.onPickSineRange}
+      />
+    ));
+  };
+
+  private onPickSineRange = (start: number, end: number, step: number) => this.startEndStepChart('sine', start, end, step);
+
+  private selectSineSlow = () => {
+    this.displayChartConfig((
+      <StartEndStepSelector
+        title='Enter Start and End'
+        initStart={0}
+        initEnd={32}
+        onSubmit={this.onPickSineSlowRange}
+      />
+    ));
+  };
+
+  private onPickSineSlowRange = (start: number, end: number, step: number) => this.startEndStepChart('sineSlow', start, end, step);
+
+  private selectError = () => {
+    this.configChart('error', 'Error Source', {}, []);
+  };
+
+  private closeChartStream = () => rootStore.dispatch(chartStreamActionCreators.delChartStream(this.props.widgetKey));
 
   private displayChartConfig(configReactComponent: JSX.Element) {
     this.cancelStream();

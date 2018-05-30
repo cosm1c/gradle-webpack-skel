@@ -30,11 +30,11 @@ export class AppNavBar extends React.Component<AppNavBarProps, State> {
     const componentClass = classNames(className, 'app-nav-bar');
 
     return (
-      <Navbar color='light' light expand='md' className={componentClass} style={style}>
+      <Navbar color='light' light={true} expand='md' className={componentClass} style={style}>
         <NavbarBrand href='/'>Webpack-Skel</NavbarBrand>
         <NavbarToggler onClick={this.toggle}/>
-        <Collapse isOpen={this.state.isOpen} navbar>
-          <Nav className='ml-auto' navbar>
+        <Collapse isOpen={this.state.isOpen} navbar={true}>
+          <Nav className='ml-auto' navbar={true}>
             <NavItem>
               <MetricsConnected/>
             </NavItem>

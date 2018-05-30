@@ -13,9 +13,15 @@ export const WidgetList: React.SFC<WidgetListProps> = (props) => {
   const componentClass = classNames(className, 'widget-list');
 
   return (
-    <div className={componentClass} style={style}>{
-      widgets.map((widget) =>
-        <div key={widget.itemKey} className={widget.itemClassName} style={widget.itemStyle}>{widget.element}</div>)
-    }</div>
+    <div className={componentClass} style={style}>
+      {widgets.map((widget) =>
+        <div
+          key={widget.itemKey}
+          className={widget.itemClassName}
+          style={widget.itemStyle}
+        >
+          {widget.element}
+        </div>)}
+    </div>
   );
 };

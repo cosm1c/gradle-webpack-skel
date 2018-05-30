@@ -11,10 +11,7 @@ export interface JobViewProps {
   style?: React.CSSProperties;
 }
 
-function killJob(jobId: number) {
-  fetch(`/job/${jobId}`, {method: 'DELETE'})
-    .then((response) => console.debug('Kill job - DELETE response:', response))
-    .catch((e) => console.error('Failed to kill job', e));
+interface State {
 }
 
 function subTitle(jobInfo: IJobInfoRecord): ReactNode {
@@ -38,35 +35,55 @@ function subTitle(jobInfo: IJobInfoRecord): ReactNode {
   return 'Idle';
 }
 
-export const JobView: React.SFC<JobViewProps> = (props) => {
-  const {className, style, jobState} = props;
-  const {jobInfo, percentage} = jobState;
-  const componentClass = classNames(className, 'job-view');
+export class JobView extends React.Component<JobViewProps, State> {
 
-  return (
-    <Card className={componentClass} style={style}>
-      <CardBody>
-        <CardTitle>
-          <button type='button' className='close' aria-label='Close' onClick={() => killJob(jobInfo.get('jobId'))}>
-            <span aria-hidden='true'>&times;</span>
-          </button>
-          #{jobInfo.get('jobId').toFixed()} {jobInfo.get('description')}
-        </CardTitle>
-        <CardSubtitle className='text-right'>{subTitle(jobInfo)}</CardSubtitle>
-        <CardText>
-          {jobInfo.has('startDateTime') &&
-          <span><Badge color='info'>Started: {jobInfo.get('startDateTime')}</Badge> </span>}
-          {jobInfo.has('endDateTime') &&
-          <span> <Badge color='info'>Completed: {jobInfo.get('endDateTime')}</Badge></span>}
-          {jobInfo.has('error') && <span> <Badge color='danger'>Failed: {jobInfo.get('error')}</Badge></span>}
+  public state: State = {
+    title: 'Please select a chart',
+  };
+
+  constructor(props: JobViewProps) {
+    super(props);
+  }
+
+  public render() {
+    const {className, style, jobState} = this.props;
+    const {jobInfo, percentage} = jobState;
+    const componentClass = classNames(className, 'job-view');
+
+    return (
+      <Card className={componentClass} style={style}>
+        <CardBody>
+          <CardTitle>
+            <button type='button' className='close' aria-label='Close' onClick={this.killJob}>
+              <span aria-hidden='true'>&times;</span>
+            </button>
+            #{jobInfo.get('jobId').toFixed()} {jobInfo.get('description')}
+          </CardTitle>
+          <CardSubtitle className='text-right'>{subTitle(jobInfo)}</CardSubtitle>
+          <CardText>
+            {jobInfo.has('startDateTime') &&
+            <span><Badge color='info'>Started: {jobInfo.get('startDateTime')}</Badge> </span>}
+            {jobInfo.has('endDateTime') &&
+            <span> <Badge color='info'>Completed: {jobInfo.get('endDateTime')}</Badge></span>}
+            {jobInfo.has('error') && <span> <Badge color='danger'>Failed: {jobInfo.get('error')}</Badge></span>}
           </CardText>
-        <Progress
-          animated={!jobInfo.has('endDateTime')}
-          value={(typeof percentage === 'number') ? percentage : 100}>{(typeof percentage === 'number') ? `${percentage}%` : ''}</Progress>
-      </CardBody>
-    </Card>
-  );
-};
+          <Progress
+            animated={!jobInfo.has('endDateTime')}
+            value={(typeof percentage === 'number') ? percentage : 100}
+          >
+            {(typeof percentage === 'number') ? `${percentage}%` : ''}
+          </Progress>
+        </CardBody>
+      </Card>
+    );
+  }
+
+  private killJob = () => {
+    fetch(`/job/${this.props.jobState.jobInfo.get('jobId')}`, {method: 'DELETE'})
+      .then((response) => console.debug('Kill job - DELETE response:', response))
+      .catch((e) => console.error('Failed to kill job', e));
+  };
+}
 
 export function jobStateToWidget(jobState: JobState): Widget {
   return {

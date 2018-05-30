@@ -15,7 +15,8 @@ export const DaySelector: React.SFC<DaySelectorProps> = (props) => {
   const {className, style, title, onPickDate} = props;
   const componentClass = classNames(className, 'day-selector');
 
-  return (<Card className={componentClass} style={style}>
+  return (
+    <Card className={componentClass} style={style}>
       <CardTitle>{title}</CardTitle>
       <Calendar
         year={new Date().getFullYear()}

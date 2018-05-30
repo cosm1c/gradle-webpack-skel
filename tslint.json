@@ -1,7 +1,8 @@
 {
   "defaultSeverity": "error",
   "extends": [
-    "tslint:recommended"
+    "tslint:recommended",
+    "tslint-react"
   ],
   "jsRules": {
     "quotemark": [
@@ -29,7 +30,8 @@
       true,
       "always",
       "ignore-bound-class-methods"
-    ]
+    ],
+    "jsx-no-multiline-js": false
   },
   "rulesDirectory": []
 }
