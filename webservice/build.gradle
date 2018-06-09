@@ -4,7 +4,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
-        classpath 'org.ajoberstar:grgit:2.2.0'
+        classpath 'org.ajoberstar:grgit:2.2.1'
     }
 }
 
@@ -29,8 +29,8 @@ ext {
     gitCommitVersion = headCommit.id
     gitCommitDateTime = headCommit.dateTime
     mainClassName = 'com.github.cosm1c.skel.Main'
-    akkaVersion = '2.5.12'
-    akkaStreamVersion = '2.5.12'
+    akkaVersion = '2.5.13'
+    akkaStreamVersion = '2.5.13'
     akkaHttpVersion = '10.1.1'
     circeVersion = '0.9.3'
 }
@@ -76,13 +76,13 @@ dependencies {
     compile group: 'io.projectreactor', name: 'reactor-core', version: '3.1.7.RELEASE'
     compile group: 'io.projectreactor.addons', name: 'reactor-adapter', version: '3.1.6.RELEASE'
 
-    compile group: 'de.heikoseeberger', name: "akka-http-circe_${scalaBinaryVersion}", version: '1.20.1'
+    compile group: 'de.heikoseeberger', name: "akka-http-circe_${scalaBinaryVersion}", version: '1.21.0'
     compile group: 'io.circe', name: "circe-core_${scalaBinaryVersion}", version: circeVersion
     compile group: 'io.circe', name: "circe-generic_${scalaBinaryVersion}", version: circeVersion
     compile group: 'io.circe', name: "circe-parser_${scalaBinaryVersion}", version: circeVersion
     compile group: 'io.circe', name: "circe-java8_${scalaBinaryVersion}", version: circeVersion
 
-    compile group: 'com.google.guava', name: 'guava', version: '25.0-jre'
+    compile group: 'com.google.guava', name: 'guava', version: '25.1-jre'
 
     compile 'net.e175.klaus:solarpositioning:0.0.9'
 
@@ -92,6 +92,6 @@ dependencies {
 
     testCompile group: 'com.typesafe.akka', name: "akka-testkit_${scalaBinaryVersion}", version: akkaVersion
     testCompile group: 'com.typesafe.akka', name: "akka-stream-testkit_${scalaBinaryVersion}", version: akkaStreamVersion
-    testCompile group: 'org.scalatest', name: "scalatest_${scalaBinaryVersion}", version: '3.0.4'
+    testCompile group: 'org.scalatest', name: "scalatest_${scalaBinaryVersion}", version: '3.0.5'
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
 }

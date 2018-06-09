@@ -1,3 +1,4 @@
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/mergeMap';
 import {ActionsObservable, combineEpics, createEpicMiddleware, Epic} from 'redux-observable';
 import {makeTypedFactory, TypedRecord} from 'typed-immutable-record';
@@ -11,7 +12,6 @@ import {ChartStreamAction, ChartStreamList, chartStreamReducer, emptyChartStream
 import {combineReducers} from 'redux-immutable';
 import {globalAlertReducer} from './globalAlert/reducer';
 import {connectionStateReducer} from './navbar/connection/reducer';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {applyMiddleware, createStore, MiddlewareAPI, Reducer, Store} from 'redux';
 import {composeWithDevTools} from 'redux-devtools-extension';
 import {IRootAction, IRootState, IRootStateRecord, RootEpic} from './store';

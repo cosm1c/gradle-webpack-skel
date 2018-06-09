@@ -13,6 +13,7 @@ import {rootStore} from './store';
 
 if (module.hot) {
   module.hot.accept(console.error);
+  module.hot.status(console.debug);
 }
 
 /*

@@ -1,5 +1,4 @@
 import {Observer} from 'rxjs/Observer';
-import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/observable/dom/webSocket';
 import {WebSocketSubject, WebSocketSubjectConfig} from 'rxjs/observable/dom/WebSocketSubject';
@@ -136,7 +135,7 @@ class ClientStreams {
           },
         };
 
-        const webSocketSubject = Observable.webSocket(webSocketSubjectConfig) as WebSocketSubject<any>;
+        const webSocketSubject = new WebSocketSubject(webSocketSubjectConfig);
 
         rootEpic$.next(createWebSocketEpic(webSocketSubject, this.receiveFrame, this.receiveError));
 

@@ -8,7 +8,6 @@ import akka.event.LoggingAdapter
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Keep, Source}
-import com.github.cosm1c.skel.ui.UiWebSocketFlow._
 import com.github.cosm1c.skel.{JsonProtocol, Main}
 import io.circe._
 
@@ -19,8 +18,6 @@ object UiWebSocketFlow {
     final val emptyJson = Json.obj()
 
     final val emptyJsonTuple = (emptyJson, emptyJson)
-
-    private final val keepAliveWebSocketFrame = () => TextMessage.Strict("{}")
 
 }
 
@@ -40,7 +37,6 @@ class UiWebSocketFlow()(implicit materializer: Materializer, actorRefFactory: Ac
                 .merge(clientStreams.clientSources)
                 .map(circePrinter.pretty)
                 .map(TextMessage.Strict)
-                .keepAlive(55.seconds, keepAliveWebSocketFrame)
 
         Flow.fromSinkAndSourceCoupledMat(clientStreams.in, out)(Keep.both)
     }
