@@ -31,7 +31,7 @@ ext {
     mainClassName = 'com.github.cosm1c.skel.Main'
     akkaVersion = '2.5.13'
     akkaStreamVersion = '2.5.13'
-    akkaHttpVersion = '10.1.1'
+    akkaHttpVersion = '10.1.3'
     circeVersion = '0.9.3'
 }
 
@@ -73,7 +73,7 @@ dependencies {
     compile group: 'com.github.swagger-akka-http', name: "swagger-akka-http_${scalaBinaryVersion}", version: '0.14.0'
     compile group: 'ch.megard', name: "akka-http-cors_${scalaBinaryVersion}", version: '0.3.0'
 
-    compile group: 'io.projectreactor', name: 'reactor-core', version: '3.1.7.RELEASE'
+    compile group: 'io.projectreactor', name: 'reactor-core', version: '3.1.8.RELEASE'
     compile group: 'io.projectreactor.addons', name: 'reactor-adapter', version: '3.1.6.RELEASE'
 
     compile group: 'de.heikoseeberger', name: "akka-http-circe_${scalaBinaryVersion}", version: '1.21.0'
