@@ -2,14 +2,15 @@ package com.github.cosm1c.skel.ui
 
 import java.time.ZonedDateTime
 
-import akka.actor.ActorRefFactory
+import akka.actor.{ActorRef, ActorRefFactory}
 import akka.event.LoggingAdapter
-import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage}
-import akka.stream.scaladsl.{BroadcastHub, Keep, MergeHub, Sink, Source}
+import akka.http.scaladsl.model.{IllegalUriException, Uri}
+import akka.stream.scaladsl.{BroadcastHub, Flow, Keep, MergeHub, Sink, Source}
 import akka.stream.{KillSwitches, Materializer, UniqueKillSwitch}
 import akka.{Done, NotUsed}
 import com.github.cosm1c.skel.JsonProtocol
+import com.github.cosm1c.skel.job.JobManagerActor.SubscribeJobsStream
 import com.github.cosm1c.skel.streams.Streams
 import com.github.cosm1c.skel.ui.ClientConnectionActor.{AttachSubStream, CancelSubStream, ErrorSubStream}
 import io.circe.parser.parse
@@ -26,13 +27,17 @@ object ClientStreams {
 
 }
 
-
-class ClientStreams()(implicit materializer: Materializer, actorRefFactory: ActorRefFactory, log: LoggingAdapter) extends JsonProtocol {
+class ClientStreams(jobsManagerActor: ActorRef, globalMetaSource: Source[Json, NotUsed])(implicit materializer: Materializer, actorRefFactory: ActorRefFactory, log: LoggingAdapter) extends JsonProtocol {
 
     private val clientConnectionActor = actorRefFactory.actorOf(ClientConnectionActor.props(this))
 
+    private val clientJsonDeltaStream = new JsonDeltaStream()
+
+    val clientDeltaSink: Sink[Json, NotUsed] = clientJsonDeltaStream.deltaSink
+
     val ((clientSink: Sink[Json, NotUsed], clientKillSwitch: UniqueKillSwitch), clientSources: Source[Json, NotUsed]) =
         MergeHub.source[Json](perProducerBufferSize = 16)
+            .merge(clientJsonDeltaStream.deltaSource)
             .viaMat(KillSwitches.single)(Keep.both)
             .toMat(BroadcastHub.sink(bufferSize = 2))(Keep.both)
             .run()
@@ -46,19 +51,19 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
                     .map(receiveClientMessage)(materializer.executionContext)
 
             case BinaryMessage.Streamed(dataStream) =>
-                sendGlobalErrorMessage("Terminating client due to unexpected streamed binary " +
-                    "messsage")
+                sendAlert("Terminating client due to unexpected streamed binary " +
+                    "message")
                 dataStream.runWith(Sink.cancelled)
                 clientKillSwitch.abort(new RuntimeException("Unexpected binary stream received"))
 
             case BinaryMessage.Strict(_) =>
-                sendGlobalErrorMessage("Terminating client due to unexpected strict binary messsage")
+                sendAlert("Terminating client due to unexpected strict binary messsage")
                 clientKillSwitch.abort(new RuntimeException("Unexpected binary message received"))
         }
 
-    private def sendGlobalErrorMessage(errorMessage: String): Unit = {
-        Source.single(Json.obj("errorMessage" -> Json.fromString(errorMessage))).runWith(clientSink)
-        log.warning(errorMessage)
+    private def sendAlert(message: String): Unit = {
+        Source.single(Json.obj("errorMessage" -> Json.fromString(message))).runWith(clientSink)
+        log.warning(message)
     }
 
     private def receiveClientMessage(text: String): Unit =
@@ -73,15 +78,20 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
                         clientConnectionActor ! CancelSubStream(streamId)
 
                     case (streamId, jsonArg) if jsonArg.isString =>
-                        subscribeStream(streamId, Uri(jsonArg.asString.get))
+                        try {
+                            subscribeStream(streamId, Uri(jsonArg.asString.get))
+                        } catch {
+                            case IllegalUriException(info) =>
+                                clientConnectionActor ! ErrorSubStream(streamId, s"""InvalidStreamUri streamId="$streamId" ${info.toString}"""")
+                        }
 
                     case (streamId, jsonArg) =>
                         clientConnectionActor ! ErrorSubStream(streamId, s"""InvalidMessage streamId="$streamId" value="${jsonArg.toString}"""")
                 }
 
-            case Right(json) => sendGlobalErrorMessage(s"""MalformedStreamMessage message="${json.toString}"""")
+            case Right(json) => sendAlert(s"""MalformedStreamMessage message="${json.toString}"""")
 
-            case Left(ParsingFailure(errorMessage, _)) => sendGlobalErrorMessage(s"""StreamParsingFailure errorMessage="$errorMessage"""")
+            case Left(ParsingFailure(errorMessage, _)) => sendAlert(s"""StreamParsingFailure errorMessage="$errorMessage"""")
         }
 
     private def parseStartAndEndDate(query: Uri.Query): (ZonedDateTime, ZonedDateTime) = {
@@ -105,6 +115,18 @@ class ClientStreams()(implicit materializer: Materializer, actorRefFactory: Acto
     private def subscribeStream(streamId: String, streamUri: Uri): Unit = {
         val query = streamUri.query()
         streamUri.path.toString() match {
+
+            case "meta" =>
+                globalMetaSource
+                    .map(json => Json.obj(streamId -> json))
+                    .runWith(clientJsonDeltaStream.deltaSink)
+
+            case "jobs" =>
+                jobsManagerActor ! SubscribeJobsStream(
+                    Flow[Json]
+                        .map(json => Json.obj(streamId -> json))
+                        .to(clientJsonDeltaStream.deltaSink))
+
             case "solar" =>
                 val (start, end) = parseStartAndEndDate(query)
                 clientConnectionActor ! AttachSubStream(

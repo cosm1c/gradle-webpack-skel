@@ -3,15 +3,16 @@
 Simple starter for a backend and frontend application with updates sent over WebSocket.
 
 ## BACKLOG
- * upgrade to rxjs@6 and @types/redux-observable@6 once redux-observable supports it, see: https://github.com/redux-observable/redux-observable/issues/491
- * import sass stylesheets to reduce initial render
- * Use react-loadable - see comments in frontend/app/index.tsx (currently breaks dev-server but works in PRD)
+ * enable bable minification in .babelrc once Babelv7 is released, see: https://github.com/babel/minify/issues/850
+ * resurrect charts
+ * globalAlert buffers events in ringbuffer
+ * endpoint to send global alert
  * RequestMetrics: totalRequests and activeRequests using BidiFlow, http response details and duration using custom directive 
  * Initial render occurs in initial static html with no-JS, dynamically imported remainder (faster first render)
  * checkbox to enable reconnect - off by default
- * restart streams on WebSocket reconnect
  * OHLC Chart - with webservice providing OHLC data for any stream
  * binary Avro encoding of chart points over WebSocket
+ * dynamic import sass stylesheets to reduce initial render
 
 ## Release Command
 Self executing Jar will be at `webservice/build/libs/webservice-<version>-all.jar`

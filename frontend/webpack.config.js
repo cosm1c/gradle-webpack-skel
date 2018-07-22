@@ -20,7 +20,7 @@ module.exports = (env, argv) => ({
 
   context: __dirname,
 
-  entry: './app/index.tsx',
+  entry: './src/index.tsx',
 
   output: {
     filename: '[hash]-[name].js',
@@ -84,6 +84,7 @@ module.exports = (env, argv) => ({
   },
 
   optimization: {
+    nodeEnv: argv.mode || 'development',
     minimize: false,
     // minimizer: [],
     runtimeChunk: false,

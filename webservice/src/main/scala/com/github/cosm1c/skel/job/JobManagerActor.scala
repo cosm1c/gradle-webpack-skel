@@ -8,7 +8,7 @@ import akka.stream.scaladsl.{Keep, MergeHub, Sink, Source}
 import akka.{Done, NotUsed}
 import com.github.cosm1c.skel.JsonProtocol
 import com.github.cosm1c.skel.job.JobManagerActor._
-import com.github.cosm1c.skel.ui.UiWebSocketFlow
+import com.github.cosm1c.skel.ui.JsonDeltaStream
 import com.github.cosm1c.skel.util.ReplyStatus
 import com.github.cosm1c.skel.util.ReplyStatus.{ReplyFailure, ReplySuccess}
 import io.circe.Json
@@ -19,8 +19,8 @@ import scala.util.{Failure, Success}
 
 object JobManagerActor {
 
-    def props(uiStreams: UiWebSocketFlow)(implicit materializer: Materializer): Props =
-        Props(new JobManagerActor(uiStreams))
+    def props()(implicit materializer: Materializer): Props =
+        Props(new JobManagerActor())
 
     final case class JobInfo(jobId: Long,
                              curr: Option[Int] = None,
@@ -35,6 +35,8 @@ object JobManagerActor {
     final case class GetJobInfo(jobId: Long)
 
     final case class KillJob(jobId: Long)
+
+    final case class SubscribeJobsStream(sub: Sink[Json, NotUsed])
 
     final case class CreateJob(description: String,
                                total: Int)
@@ -58,7 +60,9 @@ object JobManagerActor {
 }
 
 // TODO: Use TypedActor when its production ready
-class JobManagerActor(uiStreams: UiWebSocketFlow)(implicit materializer: Materializer) extends Actor with JsonProtocol with ActorLogging {
+class JobManagerActor()(implicit materializer: Materializer) extends Actor with JsonProtocol with ActorLogging {
+
+    private val jobsStream = new JsonDeltaStream()
 
     private var jobCounter: Long = 0L
     private var jobInfos = Map.empty[Long, JobInfo]
@@ -69,8 +73,7 @@ class JobManagerActor(uiStreams: UiWebSocketFlow)(implicit materializer: Materia
             .map(jobInfo => Json.obj(jobId -> jobInfoEncoder(jobInfo)))
             .concat(Source.single(Json.obj(jobId -> Json.Null))) // remove from state
             .recover { case _ => Json.obj(jobId -> Json.Null) }
-            .map(msg => Json.obj("jobs" -> msg))
-            .toMat(uiStreams.globalStorePubSub.storeSink)(Keep.left)
+            .toMat(jobsStream.deltaSink)(Keep.left)
             .run()
 
     private val jobInfoStreamMergeHubSource: Sink[JobInfo, NotUsed] =
@@ -85,6 +88,8 @@ class JobManagerActor(uiStreams: UiWebSocketFlow)(implicit materializer: Materia
             sender ! JobInfoStreamAck
 
         case JobInfoStreamStart => sender ! JobInfoStreamAck
+
+        case SubscribeJobsStream(sub) => jobsStream.deltaSource.runWith(sub)
 
         case ListRunningJobs => sender() ! jobInfos.values
 

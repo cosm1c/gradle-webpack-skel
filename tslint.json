@@ -26,6 +26,25 @@
       true,
       "single"
     ],
+    "trailing-comma": [
+      true,
+      {
+        "singleline": "never",
+        "multiline": {
+          "objects": "always",
+          "functions": "never",
+          "arrays": "ignore",
+          "imports": "never",
+          "exports": "ignore",
+          "typeLiterals": "ignore"
+        },
+        "esSpecCompliant": true
+      }
+    ],
+    "rxjs-collapse-imports": true,
+    "rxjs-pipeable-operators-only": true,
+    "rxjs-no-static-observable-methods": true,
+    "rxjs-proper-imports": true,
     "semicolon": [
       true,
       "always",
@@ -33,5 +52,7 @@
     ],
     "jsx-no-multiline-js": false
   },
-  "rulesDirectory": []
+  "rulesDirectory": [
+    "node_modules/rxjs-tslint"
+  ]
 }

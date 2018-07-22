@@ -14,7 +14,7 @@ class HttpRoutes(uiRoutes: UiRoutes,
                  swaggerDocService: SwaggerDocService,
                  healthRestService: HealthRestService) {
 
-    final val route: Route =
+    val route: Route =
         handleRejections(CorsDirectives.corsRejectionHandler) {
             cors() {
                 decodeRequest {

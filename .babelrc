@@ -2,7 +2,7 @@
     "comments": false,
     "minified": true,
     "env": {
-        "production": {
+        "production-minify-broken": {
             "presets": [
                 "minify"
             ]

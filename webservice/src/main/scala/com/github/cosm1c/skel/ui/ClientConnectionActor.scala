@@ -12,7 +12,7 @@ object ClientConnectionActor {
     def props(clientStreams: ClientStreams)(implicit materializer: Materializer): Props =
         Props(new ClientConnectionActor(clientStreams))
 
-    final case class AttachSubStream(streamId: String, source: Source[Json, NotUsed])
+    final case class AttachSubStream(streamId: String, source: Source[Json, NotUsed], isJsonDeltaStream: Boolean = false)
 
     final case class CancelSubStream(streamId: String)
 
@@ -30,7 +30,7 @@ class ClientConnectionActor(clientStreams: ClientStreams)(implicit materializer:
     private var clientStreamKillSwitches = Map.empty[String, UniqueKillSwitch]
 
     override def receive: Receive = {
-        case AttachSubStream(streamId, source) =>
+        case AttachSubStream(streamId, source, isJsonDeltaStream) =>
             val subStreamKillSwitch: UniqueKillSwitch =
                 source
                     .viaMat(KillSwitches.single)(Keep.right)
@@ -40,7 +40,7 @@ class ClientConnectionActor(clientStreams: ClientStreams)(implicit materializer:
                         case _: StreamCancelledException => closeSubStreamJson(streamId)
                         case throwable: Throwable => errorSubStreamJson(streamId, throwable.getMessage)
                     }
-                    .toMat(clientStreams.clientSink)(Keep.left)
+                    .toMat(if (isJsonDeltaStream) clientStreams.clientSink else clientStreams.clientDeltaSink)(Keep.left)
                     .run()
 
             clientStreamKillSwitches += streamId -> subStreamKillSwitch
@@ -49,8 +49,14 @@ class ClientConnectionActor(clientStreams: ClientStreams)(implicit materializer:
             clientStreamKillSwitches.get(streamId).foreach(_.abort(new StreamCancelledException))
 
         case ErrorSubStream(streamId, errorMessage) =>
-            clientStreamKillSwitches.get(streamId).foreach(_.abort(new RuntimeException(s"Stream error: $errorMessage")))
+            clientStreamKillSwitches.get(streamId) match {
+                case Some(streamKillSwitch) =>
+                    streamKillSwitch.abort(new RuntimeException(s"Stream error: $errorMessage"))
 
+                case None =>
+                    Source.single(Json.obj(streamCtlId -> Json.obj(streamId -> Json.fromString(errorMessage))))
+                        .runWith(clientStreams.clientDeltaSink)
+            }
     }
 
     private def closeSubStreamJson(streamId: String): Json =
