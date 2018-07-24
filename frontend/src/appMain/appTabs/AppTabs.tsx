@@ -3,6 +3,8 @@ import * as React from 'react';
 import {Button, ButtonGroup, Card, Nav, NavItem, NavLink, TabContent, TabPane} from 'reactstrap';
 import {JobsListConnected} from './job/JobsListConnected';
 import {AlertLevel, fireGlobalAlert} from '../../appAlert';
+import {ChartListConnected} from './charts/ChartListConnected';
+import {fireAddChart} from './charts/redux-duck';
 
 export interface AppTabsProps {
   className?: string;
@@ -24,7 +26,7 @@ export class AppTabs extends React.Component<AppTabsProps, State> {
   }
 
   private static addChartStream() {
-    console.warn('TODO: addChartStream');
+    fireAddChart();
   }
 
   public state: State = {
@@ -77,7 +79,7 @@ export class AppTabs extends React.Component<AppTabsProps, State> {
             <JobsListConnected/>
           </TabPane>
           <TabPane tabId='2'>
-            TODO: Charts Tab
+            <ChartListConnected/>
           </TabPane>
         </TabContent>
       </div>

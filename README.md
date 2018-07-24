@@ -4,7 +4,6 @@ Simple starter for a backend and frontend application with updates sent over Web
 
 ## BACKLOG
  * enable bable minification in .babelrc once Babelv7 is released, see: https://github.com/babel/minify/issues/850
- * resurrect charts
  * globalAlert buffers events in ringbuffer
  * endpoint to send global alert
  * RequestMetrics: totalRequests and activeRequests using BidiFlow, http response details and duration using custom directive 

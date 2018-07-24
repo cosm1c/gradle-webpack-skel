@@ -40,6 +40,10 @@ class ClientStreams {
   constructor(private readonly dispatchClientStreamsAction: (action: ClientStreamsAction) => any) {
   }
 
+  public listConnectionIds(): Iterator<string> {
+    return this.connectionsMap.keys();
+  }
+
   public connectWebSocket(connectionId: string, url: string): void {
     if (this.connectionsMap.has(connectionId)) {
       throw new Error(`${connectionId} WebSocket already registered`);

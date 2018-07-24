@@ -40,7 +40,7 @@ class ClientConnectionActor(clientStreams: ClientStreams)(implicit materializer:
                         case _: StreamCancelledException => closeSubStreamJson(streamId)
                         case throwable: Throwable => errorSubStreamJson(streamId, throwable.getMessage)
                     }
-                    .toMat(if (isJsonDeltaStream) clientStreams.clientSink else clientStreams.clientDeltaSink)(Keep.left)
+                    .toMat(if (isJsonDeltaStream) clientStreams.clientDeltaSink else clientStreams.clientSink)(Keep.left)
                     .run()
 
             clientStreamKillSwitches += streamId -> subStreamKillSwitch

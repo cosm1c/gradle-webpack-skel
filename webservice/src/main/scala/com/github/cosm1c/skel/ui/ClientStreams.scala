@@ -94,24 +94,6 @@ class ClientStreams(jobsManagerActor: ActorRef, globalMetaSource: Source[Json, N
             case Left(ParsingFailure(errorMessage, _)) => sendAlert(s"""StreamParsingFailure errorMessage="$errorMessage"""")
         }
 
-    private def parseStartAndEndDate(query: Uri.Query): (ZonedDateTime, ZonedDateTime) = {
-        val now = ZonedDateTime.now()
-        (
-            query
-                .get("startDate")
-                .map(ZonedDateTime.parse)
-                .getOrElse {
-                    now.minusHours(12L)
-                },
-            query
-                .get("endDate")
-                .map(ZonedDateTime.parse)
-                .getOrElse {
-                    now.plusHours(12L)
-                }
-        )
-    }
-
     private def subscribeStream(streamId: String, streamUri: Uri): Unit = {
         val query = streamUri.query()
         streamUri.path.toString() match {
@@ -199,6 +181,24 @@ class ClientStreams(jobsManagerActor: ActorRef, globalMetaSource: Source[Json, N
 
             case _ => clientConnectionActor ! ErrorSubStream(streamId, s"""NotFound streamUri="$streamUri"""")
         }
+    }
+
+    private def parseStartAndEndDate(query: Uri.Query): (ZonedDateTime, ZonedDateTime) = {
+        val now = ZonedDateTime.now()
+        (
+            query
+                .get("startDate")
+                .map(ZonedDateTime.parse)
+                .getOrElse {
+                    now.minusHours(12L)
+                },
+            query
+                .get("endDate")
+                .map(ZonedDateTime.parse)
+                .getOrElse {
+                    now.plusHours(12L)
+                }
+        )
     }
 
 }
