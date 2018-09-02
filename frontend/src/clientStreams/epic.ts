@@ -29,6 +29,7 @@ export function createWebSocketEpic(name: string,
                   console.debug(`${name} WebSocket reconnecting in ${RECONNECT_DELAY_MS}ms`);
                   return timer(RECONNECT_DELAY_MS).pipe(
                     // startWith(connectionOffline(connectionId, err)),
+                    map(() => document.createEvent('CustomEvent'))
                   );
                 }
                 return fromEvent(window, 'online').pipe(
