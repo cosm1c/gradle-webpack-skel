@@ -11,23 +11,19 @@ import com.github.cosm1c.skel.util.ReplyStatus.{Reply, ReplyFailure, ReplySucces
 import io.swagger.annotations._
 import javax.ws.rs.Path
 
-import scala.concurrent.duration._
-
 @Api(produces = "application/json", tags = Array("jobs"))
 @Path("job")
-class JobRestService(jobManagerActor: ActorRef) extends Directives with JsonProtocol {
-
-    private implicit final val timeout: Timeout = Timeout(1.second)
+class JobRestService(jobManagerActor: ActorRef, implicit val timeout: Timeout) extends Directives with JsonProtocol {
 
     val route: Route =
         pathPrefix("job") {
             listRunningJobs ~
-                createJob ~
                 getJobInfo ~
+                createDemoJob ~
                 killJob
         }
 
-    @ApiOperation(value = "List Jobs", notes = "List all jobs currently running", httpMethod = "GET", response = classOf[JobInfo], responseContainer = "List")
+    @ApiOperation(value = "List jobs", notes = "List all jobs currently running", httpMethod = "GET", response = classOf[JobInfo], responseContainer = "List")
     @Path("/")
     def listRunningJobs: Route =
         get {
@@ -38,17 +34,17 @@ class JobRestService(jobManagerActor: ActorRef) extends Directives with JsonProt
             }
         }
 
-    @ApiOperation(value = "Create Job", notes = "Creates demo job which counts up to total", httpMethod = "POST", response = classOf[JobInfo])
+    @ApiOperation(value = "Create demo job", notes = "Creates demo job which counts up to total", httpMethod = "POST", response = classOf[JobInfo])
     @ApiImplicitParams(Array(
         new ApiImplicitParam(name = "description", value = "Description of Job", required = true, dataTypeClass = classOf[String], paramType = "query"),
         new ApiImplicitParam(name = "total", value = "Total items to process", required = true, dataTypeClass = classOf[Int], paramType = "query")
     ))
     @Path("/")
-    def createJob: Route =
+    def createDemoJob: Route =
         post {
             pathEndOrSingleSlash {
                 parameters(('description, 'total.as[Int])) { (description, total) =>
-                    onSuccess((jobManagerActor ? CreateJob(description, total)).mapTo[JobInfo]) { jobInfo =>
+                    onSuccess((jobManagerActor ? CreateDemoJob(description, total)).mapTo[JobInfo]) { jobInfo =>
                         complete(jobInfo)
                     }
                 }
@@ -76,7 +72,7 @@ class JobRestService(jobManagerActor: ActorRef) extends Directives with JsonProt
             }
         }
 
-    @ApiOperation(value = "Kill Job", notes = "Kill a running Job", httpMethod = "DELETE")
+    @ApiOperation(value = "Kill job", notes = "Kill a running job", httpMethod = "DELETE")
     @ApiImplicitParams(Array(
         new ApiImplicitParam(name = "jobId", value = "Job ID", required = true, dataTypeClass = classOf[Long], paramType = "path")
     ))

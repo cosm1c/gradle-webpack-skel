@@ -4,7 +4,7 @@ project.buildDir = 'dist'
 
 task runDevServer(type: Exec) {
     environment PATH: npmPath
-    commandLine = [npmCommand, 'run', 'dev-server']
+    commandLine = [npmCommand, 'run', 'serv']
 }
 
 task test(type: Exec) {
@@ -14,5 +14,5 @@ task test(type: Exec) {
 
 task buildPackage(type: Exec) {
     environment PATH: npmPath
-    commandLine = [npmCommand, 'run', 'package']
+    commandLine = [npmCommand, 'run', 'build']
 }

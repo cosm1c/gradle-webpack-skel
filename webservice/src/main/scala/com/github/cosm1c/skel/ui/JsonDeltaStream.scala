@@ -19,14 +19,14 @@ class JsonDeltaStream()(implicit materializer: Materializer) {
     private val replayProcessor: Processor[(Json, Json), (Json, Json)] =
         ReplayProcessor.cacheLast[(Json, Json)]
 
-    val deltaSink: Sink[Json, NotUsed] =
+    val sink: Sink[Json, NotUsed] =
         MergeHub.source[Json](perProducerBufferSize = 1)
             .scan(emptyJsonTuple)(applyJsonDelta)
             .conflate(conflateJsonPair)
             .to(Sink.fromSubscriber(replayProcessor))
             .run()
 
-    val deltaSource: Source[Json, NotUsed] =
+    val source: Source[Json, NotUsed] =
         Source.fromPublisher(replayProcessor)
             .conflate(conflateJsonPair)
             .prefixAndTail(1)

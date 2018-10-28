@@ -8,9 +8,9 @@ end_of_line = lf
 indent_size = 4
 indent_style = space
 insert_final_newline = true
-trim_trailing_whitespace=true
+trim_trailing_whitespace = true
 
-[*.{js,jsx,ts,tsx,less,sbt,json}]
+[*.{js, jsx, ts, tsx, less, sbt, json}]
 indent_style = space
 indent_size = 2
 
@@ -19,4 +19,4 @@ indent_style = tab
 insert_final_newline = false
 
 [*.md]
-trim_trailing_whitespace=false
+trim_trailing_whitespace = false

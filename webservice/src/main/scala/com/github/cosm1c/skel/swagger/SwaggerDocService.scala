@@ -8,7 +8,7 @@ import com.github.swagger.akka.model.Info
 class SwaggerDocService(version: String,
                         override val basePath: String) extends SwaggerHttpService {
 
-    override val apiClasses = Set(
+    override val apiClasses: Set[Class[_]] = Set(
         classOf[JobRestService],
         classOf[HealthRestService]
     )
@@ -20,7 +20,7 @@ class SwaggerDocService(version: String,
         //contact: Option[Contact] = None,
     )
 
-    override val unwantedDefinitions = Seq("Function1", "Function1RequestContextFutureRouteResult")
+    override val unwantedDefinitions: Seq[String] = Seq("Function1", "Function1RequestContextFutureRouteResult")
 
     //override val host = "localhost:12345"
     //override val externalDocs = Some(new ExternalDocs("Core Docs", "http://acme.com/docs"))

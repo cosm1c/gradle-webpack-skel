@@ -3,20 +3,15 @@
 Simple starter for a backend and frontend application with updates sent over WebSocket.
 
 ## BACKLOG
- * enable bable minification in .babelrc once Babelv7 is released, see: https://github.com/babel/minify/issues/850
- * globalAlert buffers events in ringbuffer
- * endpoint to send global alert
  * RequestMetrics: totalRequests and activeRequests using BidiFlow, http response details and duration using custom directive 
- * Initial render occurs in initial static html with no-JS, dynamically imported remainder (faster first render)
- * checkbox to enable reconnect - off by default
  * OHLC Chart - with webservice providing OHLC data for any stream
  * binary Avro encoding of chart points over WebSocket
- * dynamic import sass stylesheets to reduce initial render
 
 ## Release Command
 Self executing Jar will be at `webservice/build/libs/webservice-<version>-all.jar`
 ```
-npm install && ./gradlew clean build
+cd frontend && npm install
+./gradlew clean build
 ```
 
 ## Frontend Development Environment
@@ -32,6 +27,8 @@ Start in a dedicated terminal:
 ### Frontend
 Start in a dedicated terminal and access at [http://localhost:9090/](http://localhost:9090/):
 ```
+cd frontend
 npm install
-./gradlew :frontend:runDevServer
+npm install -g vue-cli
+vue ui
 ```

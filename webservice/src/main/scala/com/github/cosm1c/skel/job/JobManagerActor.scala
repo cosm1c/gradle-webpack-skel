@@ -1,12 +1,13 @@
 package com.github.cosm1c.skel.job
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.stream._
 import akka.stream.scaladsl.{Keep, MergeHub, Sink, Source}
 import akka.{Done, NotUsed}
 import com.github.cosm1c.skel.JsonProtocol
+import com.github.cosm1c.skel.health.HealthActor.ComponentHealth
 import com.github.cosm1c.skel.job.JobManagerActor._
 import com.github.cosm1c.skel.ui.JsonDeltaStream
 import com.github.cosm1c.skel.util.ReplyStatus
@@ -19,8 +20,9 @@ import scala.util.{Failure, Success}
 
 object JobManagerActor {
 
-    def props()(implicit materializer: Materializer): Props =
-        Props(new JobManagerActor())
+    def props(healthActor: ActorRef,
+              agent: String)(implicit materializer: Materializer): Props =
+        Props(new JobManagerActor(healthActor, agent))
 
     final case class JobInfo(jobId: Long,
                              curr: Option[Int] = None,
@@ -28,7 +30,8 @@ object JobManagerActor {
                              startDateTime: Option[LocalDateTime] = None,
                              endDateTime: Option[LocalDateTime] = None,
                              error: Option[String] = None,
-                             description: Option[String] = None)
+                             description: Option[String] = None,
+                             agent: Option[String] = None)
 
     final case object ListRunningJobs
 
@@ -38,8 +41,8 @@ object JobManagerActor {
 
     final case class SubscribeJobsStream(sub: Sink[Json, NotUsed])
 
-    final case class CreateJob(description: String,
-                               total: Int)
+    final case class CreateDemoJob(description: String,
+                                   total: Int)
 
 
     private final case class JobCompleted(jobId: Long,
@@ -60,7 +63,10 @@ object JobManagerActor {
 }
 
 // TODO: Use TypedActor when its production ready
-class JobManagerActor()(implicit materializer: Materializer) extends Actor with JsonProtocol with ActorLogging {
+class JobManagerActor(healthActor: ActorRef, agent: String)(implicit materializer: Materializer) extends Actor with JsonProtocol with ActorLogging {
+
+    // Initially healthy
+    healthActor ! ComponentHealth(getClass.getSimpleName, isHealthy = true, Instant.now)
 
     private val jobsStream = new JsonDeltaStream()
 
@@ -73,7 +79,7 @@ class JobManagerActor()(implicit materializer: Materializer) extends Actor with 
             .map(jobInfo => Json.obj(jobId -> jobInfoEncoder(jobInfo)))
             .concat(Source.single(Json.obj(jobId -> Json.Null))) // remove from state
             .recover { case _ => Json.obj(jobId -> Json.Null) }
-            .toMat(jobsStream.deltaSink)(Keep.left)
+            .toMat(jobsStream.sink)(Keep.left)
             .run()
 
     private val jobInfoStreamMergeHubSource: Sink[JobInfo, NotUsed] =
@@ -89,7 +95,7 @@ class JobManagerActor()(implicit materializer: Materializer) extends Actor with 
 
         case JobInfoStreamStart => sender ! JobInfoStreamAck
 
-        case SubscribeJobsStream(sub) => jobsStream.deltaSource.runWith(sub)
+        case SubscribeJobsStream(sub) => jobsStream.source.runWith(sub)
 
         case ListRunningJobs => sender() ! jobInfos.values
 
@@ -106,13 +112,13 @@ class JobManagerActor()(implicit materializer: Materializer) extends Actor with 
             }
             sender() ! reply
 
-        case CreateJob(description, total) =>
+        case CreateDemoJob(description, total) =>
             val jobId = nextJobId
-            val zeroJobInfo = JobInfo(jobId, someZero, Some(total), Some(LocalDateTime.now()), description = Some(description))
+            val zeroJobInfo = JobInfo(jobId, someZero, Some(total), Some(LocalDateTime.now()), description = Some(description), agent = Some(agent))
 
-            //m memory could be saved by not enclosing on fields
+            // memory could be saved by not enclosing on fields
             val wrappedJobStream: Source[JobInfo, (UniqueKillSwitch, Future[Done])] =
-                jobInfoStream(jobId, zeroJobInfo, total)
+                createDemoJobStream(jobId, zeroJobInfo, total)
                     .alsoTo(jobInfoStreamMergeHubSource)
                     .viaMat(KillSwitches.single)(Keep.right)
                     .alsoToMat(Sink.ignore)(Keep.both)
@@ -154,7 +160,7 @@ class JobManagerActor()(implicit materializer: Materializer) extends Actor with 
             jobKillSwitches -= jobId
     }
 
-    private def jobInfoStream(jobId: Long, zeroJobInfo: JobInfo, total: Int): Source[JobInfo, NotUsed] =
+    private def createDemoJobStream(jobId: Long, zeroJobInfo: JobInfo, total: Int): Source[JobInfo, NotUsed] =
         if (total < 0)
             Source.failed(new IllegalArgumentException("Total < 0"))
         else

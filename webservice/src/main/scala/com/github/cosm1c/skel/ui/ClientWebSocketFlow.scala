@@ -22,20 +22,16 @@ object ClientWebSocketFlow {
 
 }
 
-class ClientWebSocketFlow(jobsManagerActor: ActorRef)(implicit materializer: Materializer, actorRefFactory: ActorRefFactory, log: LoggingAdapter) extends JsonProtocol {
+class ClientWebSocketFlow(jobsManagerActor: ActorRef, globalMetaStream: JsonDeltaStream)(implicit materializer: Materializer, actorRefFactory: ActorRefFactory, log: LoggingAdapter) extends JsonProtocol {
 
     val (globalBroadcastSink: Sink[Json, NotUsed], globalBroadcastSource: Source[Json, NotUsed]) =
-        MergeHub.source[Json](perProducerBufferSize = 16)
+        MergeHub.source[Json](perProducerBufferSize = 1)
             .toMat(BroadcastHub.sink(bufferSize = 2))(Keep.both)
             .run()
 
-    private val globalMetaStream = new JsonDeltaStream()
-
-    val globalMetaSink: Sink[Json, NotUsed] = globalMetaStream.deltaSink
-
     def clientWebSocketFlow: Flow[Message, Message, Any] = {
 
-        val clientStreams = new ClientStreams(jobsManagerActor, globalMetaStream.deltaSource)
+        val clientStreams = new ClientStreams(jobsManagerActor, globalMetaStream.source)
 
         val out: Source[TextMessage.Strict, NotUsed] =
             globalBroadcastSource

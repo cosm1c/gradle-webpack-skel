@@ -33,11 +33,11 @@ class ClientStreams(jobsManagerActor: ActorRef, globalMetaSource: Source[Json, N
 
     private val clientJsonDeltaStream = new JsonDeltaStream()
 
-    val clientDeltaSink: Sink[Json, NotUsed] = clientJsonDeltaStream.deltaSink
+    val clientDeltaSink: Sink[Json, NotUsed] = clientJsonDeltaStream.sink
 
     val ((clientSink: Sink[Json, NotUsed], clientKillSwitch: UniqueKillSwitch), clientSources: Source[Json, NotUsed]) =
         MergeHub.source[Json](perProducerBufferSize = 16)
-            .merge(clientJsonDeltaStream.deltaSource)
+            .merge(clientJsonDeltaStream.source)
             .viaMat(KillSwitches.single)(Keep.both)
             .toMat(BroadcastHub.sink(bufferSize = 2))(Keep.both)
             .run()
@@ -101,13 +101,13 @@ class ClientStreams(jobsManagerActor: ActorRef, globalMetaSource: Source[Json, N
             case "meta" =>
                 globalMetaSource
                     .map(json => Json.obj(streamId -> json))
-                    .runWith(clientJsonDeltaStream.deltaSink)
+                    .runWith(clientJsonDeltaStream.sink)
 
             case "jobs" =>
                 jobsManagerActor ! SubscribeJobsStream(
                     Flow[Json]
                         .map(json => Json.obj(streamId -> json))
-                        .to(clientJsonDeltaStream.deltaSink))
+                        .to(clientJsonDeltaStream.sink))
 
             case "solar" =>
                 val (start, end) = parseStartAndEndDate(query)
@@ -136,20 +136,22 @@ class ClientStreams(jobsManagerActor: ActorRef, globalMetaSource: Source[Json, N
                 )
 
             case "count" =>
-                val start = query.getOrElse("start", "0").toInt
-                val end = query.getOrElse("end", "10").toInt
+                val start = query.getOrElse("start", "0").toDouble
+                val end = query.getOrElse("end", "10").toDouble
+                val step = query.getOrElse("step", "1").toDouble
                 clientConnectionActor ! AttachSubStream(
                     streamId,
-                    Streams.count(start, end)
+                    Streams.count(start, end, step)
                         .map(_.asJson)
                 )
 
             case "countSlow" =>
-                val start = query.getOrElse("start", "0").toInt
-                val end = query.getOrElse("end", "10").toInt
+                val start = query.getOrElse("start", "0").toDouble
+                val end = query.getOrElse("end", "10").toDouble
+                val step = query.getOrElse("step", "1").toDouble
                 clientConnectionActor ! AttachSubStream(
                     streamId,
-                    Streams.countSlow(start, end)
+                    Streams.countSlow(start, end, step)
                         .map(_.asJson)
                 )
 

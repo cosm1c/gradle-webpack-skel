@@ -1,0 +1,58 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended"
+  ],
+  "linterOptions": {
+    "exclude": [
+      "node_modules/**"
+    ]
+  },
+  "rules": {
+    "quotemark": [
+      true,
+      "single"
+    ],
+    "indent": [
+      true,
+      "spaces",
+      2
+    ],
+    "interface-name": false,
+    "ordered-imports": false,
+    "object-literal-sort-keys": false,
+    "no-consecutive-blank-lines": false,
+    //
+    "max-line-length": false,
+    "no-empty-interface": false,
+    "no-console": false,
+    "no-reference": false,
+    "trailing-comma": [
+      true,
+      {
+        "singleline": "never",
+        "multiline": {
+          "objects": "always",
+          "functions": "never",
+          "arrays": "ignore",
+          "imports": "never",
+          "exports": "ignore",
+          "typeLiterals": "ignore"
+        },
+        "esSpecCompliant": true
+      }
+    ],
+    "rxjs-collapse-imports": true,
+    "rxjs-pipeable-operators-only": true,
+    "rxjs-no-static-observable-methods": true,
+    "rxjs-proper-imports": true,
+    "semicolon": [
+      true,
+      "always",
+      "ignore-bound-class-methods"
+    ]
+  },
+  "rulesDirectory": [
+    "node_modules/rxjs-tslint"
+  ]
+}

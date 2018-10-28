@@ -9,21 +9,21 @@ import akka.stream.scaladsl.Source
 import com.github.cosm1c.skel.ui.ClientStreams.{ChartDateTimePoint, ChartPoint}
 import net.e175.klaus.solarpositioning.{AzimuthZenithAngle, SPA}
 
+import scala.collection.immutable.Range
 import scala.concurrent.duration._
 
 object Streams {
 
-    def count(start: Int, end: Int): Source[Seq[ChartPoint], NotUsed] =
-        Source(start to end)
-            .map(BigDecimal.apply)
+    def count(start: Double, end: Double, step: Double): Source[Seq[ChartPoint], NotUsed] =
+        Source(Range.BigDecimal.inclusive(start, end, step))
             .map(i => Seq(ChartPoint(i, i)))
 
-    def countSlow(start: Int, end: Int): Source[Seq[ChartPoint], NotUsed] =
-        count(start, end)
+    def countSlow(start: Double, end: Double, step: Double): Source[Seq[ChartPoint], NotUsed] =
+        count(start, end, step)
             .throttle(1, 1.second, 1, ThrottleMode.shaping)
 
     def sine(start: Double, end: Double, step: Double): Source[Seq[ChartPoint], NotUsed] =
-        Source(BigDecimal(start) to(BigDecimal(end), step))
+        Source(Range.BigDecimal.inclusive(start, end, step))
             .map(i => Seq(ChartPoint(i, BigDecimal.apply(Math.sin(i.doubleValue)))))
 
     def sineSlow(start: Double, end: Double, step: Double): Source[Seq[ChartPoint], NotUsed] =
@@ -37,8 +37,8 @@ object Streams {
         val endSecond = end.toEpochSecond
         val startSecond = start.toEpochSecond
         val step = Math.abs(endSecond - startSecond) / ticks
-        Source(Math.min(startSecond, endSecond) to(Math.max(startSecond, endSecond), step))
-            .map(second => ZonedDateTime.ofInstant(Instant.ofEpochSecond(second), start.getZone))
+        Source(Range.BigDecimal.inclusive(Math.min(startSecond, endSecond), Math.max(startSecond, endSecond), step))
+            .map(second => ZonedDateTime.ofInstant(Instant.ofEpochSecond(second.longValue()), start.getZone))
     }
 
     def solar(startDate: ZonedDateTime, endDate: ZonedDateTime, ticks: Int): Source[Seq[ChartDateTimePoint], NotUsed] =

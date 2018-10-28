@@ -11,7 +11,7 @@ import io.circe.Json
 import scala.concurrent.ExecutionContext
 import scala.util.Success
 
-class UiRoutes(uiWebSocketFlow: ClientWebSocketFlow, wsUrl: String)(implicit executor: ExecutionContext, materializer: Materializer, log: LoggingAdapter) extends Directives {
+class UiRoutes(globalMetaStream: JsonDeltaStream, clientWebSocketFlow: ClientWebSocketFlow, wsUrl: String)(implicit executor: ExecutionContext, materializer: Materializer, log: LoggingAdapter) extends Directives {
 
     private val wsUrlResponse = HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, s"""{"default":"$wsUrl"}"""))
 
@@ -20,7 +20,7 @@ class UiRoutes(uiWebSocketFlow: ClientWebSocketFlow, wsUrl: String)(implicit exe
             .queue[Int](0, OverflowStrategy.backpressure)
             .scan(0)(_ + _)
             .map(count => Json.obj("webSocketCount" -> Json.fromInt(count)))
-            .toMat(uiWebSocketFlow.globalMetaSink)(Keep.left)
+            .toMat(globalMetaStream.sink)(Keep.left)
             .run()
 
     val route: Route =
@@ -31,7 +31,7 @@ class UiRoutes(uiWebSocketFlow: ClientWebSocketFlow, wsUrl: String)(implicit exe
                 onSuccess(webSocketCountSourceQueue.offer(1)) {
                     case Enqueued =>
                         handleWebSocketMessages(
-                            uiWebSocketFlow.clientWebSocketFlow
+                            clientWebSocketFlow.clientWebSocketFlow
                                 .watchTermination()((_, done) =>
                                     done.onComplete {
                                         case Success(_) => webSocketCountSourceQueue.offer(-1)
