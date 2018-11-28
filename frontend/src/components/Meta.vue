@@ -1,10 +1,10 @@
 <template>
     <div class="connection-status">
-        <span class="badge" :class="classObject">{{name}} {{isConnected ? 'Connected' : 'Disconnected'}}</span>
+        <span class="badge" :class="classObject">{{name}} {{isConnected ? '✓' : '✗'}}
         <span class="badge"
               v-for="(value, key) in metaData"
               :key="key"
-              :class="classObjectFor(key, value)">{{key}}: {{value}}</span>
+              :class="classObjectFor(key, value)">{{key}}: {{value}}</span></span>
     </div>
 </template>
 
