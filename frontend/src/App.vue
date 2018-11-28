@@ -3,11 +3,11 @@
 
         <div class="navbar-container">
             <AppNavbar>
-                <li class="navitem"
-                    v-for="name in connectionNames"
-                    :key="name">
-                    <Meta :name="name"/>
-                </li>
+                <div class="navitem"
+                      v-for="name in connectionNames"
+                      :key="name">
+                    <Meta class="connection-link" :name="name"/>
+                </div>
             </AppNavbar>
         </div>
 
@@ -36,7 +36,7 @@
             Meta,
             AppNavbar,
             Footer,
-    },
+        },
     })
     export default class App extends Vue {
         get connectionNames() {
@@ -136,6 +136,11 @@
     .badge-dark {
         color: #fff;
         background-color: #343a40;
+    }
+
+    .badge-light {
+        color: #212529;
+        background-color: #f8f9fa;
     }
 
     .badge {
@@ -239,10 +244,16 @@
     }
 
     .text-white {
-        color: #fff!important;
+        color: #fff !important;
     }
 
     .bg-danger {
-        background-color: #dc3545!important;
+        background-color: #dc3545 !important;
     }
+
+    .connection-link > .badge {
+        font-size: 100% !important;
+        white-space: normal;
+    }
+
 </style>

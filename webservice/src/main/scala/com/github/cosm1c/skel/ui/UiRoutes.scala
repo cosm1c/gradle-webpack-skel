@@ -1,6 +1,8 @@
 package com.github.cosm1c.skel.ui
 
 import akka.event.LoggingAdapter
+import akka.http.scaladsl.model.headers.CacheDirectives.`max-age`
+import akka.http.scaladsl.model.headers.`Cache-Control`
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import akka.http.scaladsl.server._
 import akka.stream.QueueOfferResult.{Dropped, Enqueued, QueueClosed, _}
@@ -25,7 +27,9 @@ class UiRoutes(globalMetaStream: JsonDeltaStream, clientWebSocketFlow: ClientWeb
 
     val route: Route =
         pathEndOrSingleSlash {
-            getFromResource("ui/index.html")
+            respondWithHeaders(`Cache-Control`(`max-age`(0))) {
+                getFromResource("ui/index.html")
+            }
         } ~
             path("ws") {
                 onSuccess(webSocketCountSourceQueue.offer(1)) {
@@ -59,6 +63,9 @@ class UiRoutes(globalMetaStream: JsonDeltaStream, clientWebSocketFlow: ClientWeb
                     complete(wsUrlResponse)
                 }
             } ~
-            getFromResourceDirectory("ui")
+            respondWithHeaders(`Cache-Control`(`max-age`(86400))) {
+                // TODO: frontend detects changed server version on WebSocket connect and prompts for a page refresh
+                getFromResourceDirectory("ui")
+            }
 
 }

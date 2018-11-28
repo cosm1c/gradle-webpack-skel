@@ -42,7 +42,7 @@
                     return value ? 'badge-success' : 'badge-danger';
 
                 default:
-                    return 'badge-info';
+                    return 'badge-dark';
             }
         }
 

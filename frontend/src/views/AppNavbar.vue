@@ -1,7 +1,7 @@
 <template>
     <nav class="navroot">
 
-        <a class="navbrand"><img src="../assets/logo.png" width="30" height="30" class="navbrandimg">gradle-webpack-skel</a>
+        <a class="navbrand"><img src="../assets/logo.png" alt="logo" class="navbrandimg">gradle-webpack-skel</a>
 
         <button type="button" class="navbartoggler" @click="toggle()">
             <span class="navbartogglericon"></span>
@@ -9,19 +9,19 @@
 
         <div class="navbarcollapse" v-show="active">
             <ul class="navbarnav">
-                <div class="navitem"
-                     v-for="route in $router.options.routes"
-                     :key="route.path">
+                <li class="navitem"
+                    v-for="route in $router.options.routes"
+                    :key="route.path">
                     <router-link class="navlink"
                                  :to="route.path">
                         {{route.name}}
                     </router-link>
-                </div>
+                </li>
             </ul>
 
-            <ul class="navbarnav">
+            <div class="navbarnav">
                 <slot></slot>
-            </ul>
+            </div>
         </div>
     </nav>
 </template>
@@ -42,6 +42,19 @@
 </script>
 
 <style lang="less">
+
+    .router-link-exact-active {
+        color: #fff;
+        background-color: #007bff;
+        border-color: #007bff;
+        border-radius: 4px;
+    }
+
+    .navlink {
+        &:hover {
+            text-decoration: underline;;
+        }
+    }
 
     .navbar-light .navbar-nav .active {
         color: rgba(0, 0, 0, .9);
@@ -72,6 +85,8 @@
         display: inline-block !important;
         vertical-align: top !important;
         border-style: none;
+        width: 2rem;
+        height: 2rem;
     }
 
     .navlink {

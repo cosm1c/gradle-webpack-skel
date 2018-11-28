@@ -5,11 +5,11 @@
             <nav class="jobs-nav">
                 <div class="navbarcollapse">
                     <ul class="navbarnav">
-                        <div class="navitem">
+                        <li class="navitem">
                             <button @click="runDemoJob"
                                     class="btn btn-outline-primary">Run demo job
                             </button>
-                        </div>
+                        </li>
                     </ul>
                 </div>
             </nav>
