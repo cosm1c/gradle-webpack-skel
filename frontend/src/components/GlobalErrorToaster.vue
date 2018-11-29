@@ -1,5 +1,5 @@
 <template>
-    <div v-if="globalErrorsCount > 0" class="global-error">
+    <div v-cloak v-if="globalErrorsCount > 0" class="global-error">
         <div class="card text-white bg-danger">
             <div class="card-body">
 

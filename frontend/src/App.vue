@@ -4,8 +4,8 @@
         <div class="navbar-container">
             <AppNavbar>
                 <div class="navitem"
-                      v-for="name in connectionNames"
-                      :key="name">
+                     v-for="name in connectionNames"
+                     :key="name">
                     <Meta class="connection-link" :name="name"/>
                 </div>
             </AppNavbar>
@@ -256,4 +256,7 @@
         white-space: normal;
     }
 
+    [v-cloak] {
+        display: none;
+    }
 </style>
