@@ -240,13 +240,15 @@
 
         private flushBufferToChart() {
             if (this.chart) {
-                const length = Math.max(this.buffer.length, this.chart.data.datasets!.length);
+                const chartDataSets = this.chart.data.datasets!;
+                const length = Math.max(this.buffer.length, chartDataSets.length);
                 for (let i = 0; i < length; i++) {
                     if (this.buffer[i] !== null) {
-                        if (!this.chart.data.datasets![i]) {
-                            this.chart.data.datasets![i] = {data: []};
+                        if (!chartDataSets[i]) {
+                            chartDataSets[i] = {data: []};
                         }
-                        this.chart.data.datasets![i].data!.push.apply(this.chart.data.datasets![i].data, this.buffer[i]);
+                        const data = chartDataSets[i].data as ChartPoint[];
+                        data.push.apply(data, this.buffer[i]);
                     }
                 }
 
